@@ -138,7 +138,7 @@ setup_args = {
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Topic :: Internet :: Scientific/Engineering'
+        'Topic :: Internet :: Scientific/Engineering',
         'Topic :: System :: Distributed Computing',
         'Operating System :: POSIX',
         'Operating System :: Unix'
@@ -169,7 +169,7 @@ setup_args = {
         'skeleton'       : ['aimes.skeleton']
     },
     'tests_require'      : [],
-    'zip_safe'           : False,
+    'zip_safe'           : False
 }
 
 #------------------------------------------------------------------------------
