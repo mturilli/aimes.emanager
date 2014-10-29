@@ -16,8 +16,8 @@ import operator
 
 import radical.utils as ru
 import radical.pilot
-import emanager
-import emanager.interface
+import aimes.emanager
+import aimes.emanager.interface
 
 # -----------------------------------------------------------------------------
 # Configuration
@@ -65,18 +65,17 @@ else:
 # -----------------------------------------------------------------------------
 # bundle
 # -----------------------------------------------------------------------------
-bundle = emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
 
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
 bandwidth_out = dict()
 
 # Get network bandwidth for each resource.
-for resource in bundle.resources:
-    bandwidth_in[resource.ID] = resource.get_bandwidth(resource.ID, ORIGIN,
-                                                       'in')
-    bandwidth_out[resource.ID] = resource.get_bandwidth(resource.ID, ORIGIN,
-                                                        'out')
+for resource_name in bundle.resources:
+    resource = bundle.resources[resource_name]
+    bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
+    bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
@@ -115,7 +114,7 @@ else:
 # -----------------------------------------------------------------------------
 # skeleton
 # -----------------------------------------------------------------------------
-skeleton = emanager.interface.Skeleton(SKELETON_CONF)
+skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
 
 # DEFINE EXECUTION BOUNDARIES
 #

@@ -12,10 +12,10 @@ import os
 import sys
 import subprocess as sp
 
-from setuptools import setup, Command, find_packages
+from setuptools import setup, find_packages, Command
 
-name     = 'emanager'
-mod_root = 'emanager'
+name     = 'aimes.emanager'
+mod_root = ''
 
 #-----------------------------------------------------------------------------
 #
@@ -144,8 +144,8 @@ setup_args = {
         'Operating System :: Unix'
     ],
     'packages'           : [
-        'emanager',
-        'emanager.interface'
+        'aimes.emanager',
+        'aimes.emanager.interface'
     ],
     'scripts'            : [
         'bin/demo_SC2014.sh',
@@ -165,8 +165,8 @@ setup_args = {
         'radical.pilot'
     ],
     'extras_require'     : {
-        'bundles'        : ['bundles'],
-        'skeleton'       : ['skeleton']
+        'bundles'        : ['aimes.bundle'],
+        'skeleton'       : ['aimes.skeleton']
     },
     'tests_require'      : [],
     'zip_safe'           : False,
