@@ -31,6 +31,40 @@ if DBURL is None:
 else:
     print "Session database: %s" % DBURL
 
+# Ref document "AIMES Demo SC2014", Execution Manager: #2
+# ----------------------------------------------------------------------
+SKELETON_CONF = os.getenv("SKELETON_CONF")
+if SKELETON_CONF is None:
+    print "ERROR: SKELETON_CONF (i.e. skeleton description file) not defined."
+    sys.exit(1)
+else:
+    print "Skeleton description file: %s" % SKELETON_CONF
+
+
+# ----------------------------------------------------------------------
+# The bundle configuration file.
+BUNDLE_CONF = os.getenv("BUNDLE_CONF")
+if BUNDLE_CONF is None:
+    print "ERROR: BUNDLE_CONF (i.e. bundle configuration file) not defined."
+    sys.exit(1)
+else:
+    print "Bundle configuration file: %s" % BUNDLE_CONF
+
+# The IP from which the submission originates. From example, the IP of the
+# virtual machine from which an AIMES demo is executed.
+ORIGIN = os.getenv("ORIGIN")
+if ORIGIN is None:
+    print "ERROR: ORIGIN (i.e. your current IP address) not defined."
+    sys.exit(1)
+else:
+    print "IP address: %s" % BUNDLE_CONF
+
+# -----------------------------------------------------------------------------
+# bundle
+# -----------------------------------------------------------------------------
+bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+
+
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
 if 'stampede.tacc.utexas.edu' in bundle.resources and \
@@ -64,43 +98,10 @@ if 'blacklight.psc.xsede.org' in bundle.resources and \
 else:
     print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
-# Ref document "AIMES Demo SC2014", Execution Manager: #1
-# ----------------------------------------------------------------------
-# The bundle configuration file.
-BUNDLE_CONF = os.getenv("BUNDLE_CONF")
-if BUNDLE_CONF is None:
-    print "ERROR: BUNDLE_CONF (i.e. bundle configuration file) not defined."
-    sys.exit(1)
-else:
-    print "Bundle configuration file: %s" % BUNDLE_CONF
 
-# The IP from which the submission originates. From example, the IP of the
-# virtual machine from which an AIMES demo is executed.
-ORIGIN = os.getenv("ORIGIN")
-if ORIGIN is None:
-    print "ERROR: ORIGIN (i.e. your current IP address) not defined."
-    sys.exit(1)
-else:
-    print "IP address: %s" % BUNDLE_CONF
-
-
-# Ref document "AIMES Demo SC2014", Execution Manager: #2
-# ----------------------------------------------------------------------
-SKELETON_CONF = os.getenv("SKELETON_CONF")
-if SKELETON_CONF is None:
-    print "ERROR: SKELETON_CONF (i.e. skeleton description file) not defined."
-    sys.exit(1)
-else:
-    print "Skeleton description file: %s" % SKELETON_CONF
-
-
-# -----------------------------------------------------------------------------
-# bundle
-# -----------------------------------------------------------------------------
-bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
 
 # Collect information about the resources to plan the execution strategy.
-bandwidth_in = dict()
+bandwidth_in  = dict()
 bandwidth_out = dict()
 
 # Get network bandwidth for each resource.
@@ -110,22 +111,34 @@ for resource_name in bundle.resources:
     bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
 # Test bundle API
-for resource in bundle.resources:
-    print "resource.ID: %s" % resource.ID
-    print "resource.queues: %s" % resource.queues
+print "BUNDLE RESOURCES:"
+for resource_name in bundle.resources:
+    resource = bundle.resources[resource_name] 
+    print 
+    print "resource.name     : %s" % resource.name
     print "resource.num_nodes: %s" % resource.num_nodes
     print "resource.container: %s" % resource.container
-    print "resource.get_bandwidth(resource.ID, IP, 'in'): %s" % resource.get_bandwidth(resource.ID, IP, 'in')
-    print "resource.get_bandwidth(resource.ID, IP, 'out'): %s" % resource.get_bandwidth(resource.ID, IP, 'out')
+    print "resource.get_bandwidth(IP, 'in') : %s" % resource.get_bandwidth(ORIGIN, 'in')
+    print "resource.get_bandwidth(IP, 'out'): %s" % resource.get_bandwidth(ORIGIN, 'out')
+    print "resource.queues   : %s" % resource.queues.keys()
 
-for queue in resource.queues:
-    print "queue.ID: %s" % queue.ID
-    print "queue.resource: %s" % queue.resource
-    print "queue.num_nodes: %s" % queue.num_nodes
-    print "queue.num_cores: %s" % queue.num_cores
-    print "queue.num_jobs: %s" % queue.num_jobs
+    for queue_name in resource.queues:
+        queue = resource.queues[queue_name]
+        print
+        print "  queue.name             : %s" % queue.name
+        print "  queue.resource_name    : %s" % queue.resource_name
+        print "  queue.max_walltime     : %s" % queue.max_walltime     
+        print "  queue.num_procs_limit  : %s" % queue.num_procs_limit  
+        print "  queue.alive_nodes      : %s" % queue.alive_nodes      
+        print "  queue.alive_procs      : %s" % queue.alive_procs      
+        print "  queue.busy_nodes       : %s" % queue.busy_nodes       
+        print "  queue.busy_procs       : %s" % queue.busy_procs       
+        print "  queue.free_nodes       : %s" % queue.free_nodes       
+        print "  queue.free_procs       : %s" % queue.free_procs       
+        print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
+        print "  queue.num_running_jobs : %s" % queue.num_running_jobs 
 
-sys.exit()
+# sys.exit()
 
 # -----------------------------------------------------------------------------
 # skeleton
@@ -133,45 +146,47 @@ sys.exit()
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
 
 # Test skeleton API
+print "SKELETON STAGES:"
 for stage in skeleton.stages:
-    print "stage.ID: %s" % stage.ID
-    print "stage.tasks: %s" % stage.tasks
+    print
+    print "stage.name       : %s" % stage.name
+    print "stage.tasks      : %s" % stage.tasks
+    print "stage.inputdir[0]: %s" % stage.inputdir[0]
 
     # Derive stage size
-    print "len(stage.tasks): %s" % len(stage.tasks)
+    print "len(stage.tasks) : %s" % len(stage.tasks)
 
     # Derive stage duration
-    print "sum(task.runtime for task in stage.tasks): %s" % sum(task.runtime for task in stage.tasks)
+    print "sum(task.length for task in stage.tasks): %s" % sum(task.length for task in stage.tasks)
 
     # Derive stage staged-in data
-    print "sum(task.i.size for task in stage.tasks): %s" % sum(task.i.size for task in stage.tasks)
+    print "sum(task.cores for task in stage.tasks) : %s" % sum(task.cores for task in stage.tasks)
 
 
 for task in skeleton.tasks:
-    print "task.ID: %s" % task.ID
-    print "task.description: %s" % task.description
-    print "task.stage: %s" % task.stage
-    print "task.runtime: %s" % task.runtime
-    print "task.inputs: %s" % task.inputs
-    print "task.outputs: %s" % task.outputs
-    print "task.kernel: %s" % task.kernel
-    print "task.executable: %s" % task.executable
-    print "task.arguments: %s" % task.arguments
-    print "task.cores: %s" % task.cores
+    print
+    print "  task.name        : %s" % task.name
+  # print "  task.description : %s" % task.description
+    print "  task.stage       : %s" % task.stage
+    print "  task.length      : %s" % task.length
+    print "  task.cores       : %s" % task.cores
+    print "  task.ttype       : %s" % task.ttype
+  # print "  task.kernel      : %s" % task.kernel
+  # print "  task.executable  : %s" % task.executable
+  # print "  task.arguments   : %s" % task.arguments
 
+    print "  task.inputs"
     for i in task.inputs:
-        print "i.ID: %s" % i.ID
-        print "i.file_name: %s" % i.file_name
-        print "i.file_path: %s" % i.file_path
-        print "i.size: %s" % i.size
-        print "i.tasks: %s" % i.tasks
+        print "    i['name']      : %s" % i['name']
+        print "    i['size']      : %s" % i['size']
 
-    for o in task.outputs:
-        print "o.ID: %s" % o.ID
-        print "o.file_name: %s" % o.file_name
-        print "o.file_path: %s" % o.file_path
-        print "o.size: %s" % o.size
-        print "o.tasks: %s" % o.tasks
+    print "  task.outputs"
+    for i in task.outputs:
+        print "    o['name']      : %s" % o['name']
+        print "    o['size']      : %s" % o['size']
+
+    import pprint
+    pprint.pprint (aimes.emanager.interface.skeleton.task_to_cud (task))
 
 sys.exit()
 
@@ -258,12 +273,12 @@ if eur_resources_number == 100:
 #
 # Resource ID | load | queue_length | bandwidth in | bandwidth out
 data = dict()
-colums_labels = ["ID"]+eur_resources_information_order
+colums_labels = ["name"]+eur_resources_information_order
 
 for label in colums_labels:
     for resource_name in bundle.resources:
-        if label == 'ID':
-            data[label] = resource.ID
+        if label == 'name':
+            data[label] = resource.name
         elif label == 'Queue num_cores':
             # Current bundle API does not offer default queue handler.
             break
@@ -274,9 +289,9 @@ for label in colums_labels:
             # Current bundle API does not expose load.
             break
         elif label == 'Bandwidth in':
-            data[label] = bandwidth_in[resource.ID]
+            data[label] = bandwidth_in[resource.name]
         elif label == 'Bandwidth out':
-            data[label] = bandwidth_out[resource.ID]
+            data[label] = bandwidth_out[resource.name]
 
 resource_matrix = pandas.DataFrame(data)
 

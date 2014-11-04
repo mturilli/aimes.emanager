@@ -22,10 +22,15 @@ Allocation: ${XSEDE_PROJECT_ID}
 
 EOL
 
-unbuffer demo_SC2014_script.py 2>&1 | tee out.log
+which unbuffer > /dev/null
+if test $? = 0; then 
+  unbuffer demo_SC2014_script.py 2>&1 | tee out.log
+else
+  demo_SC2014_script.py 2>&1 | tee out.log
+fi
 
 SESSION_UID=`grep 'Session UID:' out.log | cut -d ' ' -f 3`
 radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out
 
-tar cfj out.log.bz2 out.log
-cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[Experiment] $WORKLOAD_BAG_SIZE tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net
+# tar cfj out.log.bz2 out.log
+# cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[Experiment] $WORKLOAD_BAG_SIZE tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net

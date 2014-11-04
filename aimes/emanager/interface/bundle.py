@@ -100,8 +100,9 @@ class Resource(object) :
 
     def __init__(self, name, config, workload, bandwidth):
 
-        self.name = name
+        self.name      = name
         self.num_nodes = config['num_nodes']
+        self.container = 'job'   # FIXME
 
         # we have a list of Queue instances, to inspect queue information,
         # indexed by queue name
@@ -143,4 +144,6 @@ class Queue(object):
         self.num_queueing_jobs    = workload['num_queueing_jobs']
         self.num_running_jobs     = workload['num_running_jobs']
 
+
+# -----------------------------------------------------------------------------
 
