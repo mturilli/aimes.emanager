@@ -12,10 +12,10 @@ __license__ = "MIT"
 import os
 import sys
 import math
-import operator
+import pandas
 
-import radical.utils as ru
 import radical.pilot
+import aimes.bundle
 import aimes.emanager
 import aimes.emanager.interface
 
@@ -31,6 +31,38 @@ if DBURL is None:
 else:
     print "Session database: %s" % DBURL
 
+# Set allocation for each given resource
+XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
+if 'stampede.tacc.utexas.edu' in bundle.resources and \
+        XSEDE_PROJECT_ID_STAMPEDE is None:
+    print "ERROR: XSEDE_PROJECT_ID_STAMPEDE undefined for any stampede."
+    sys.exit(1)
+else:
+    print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
+
+XSEDE_PROJECT_ID_TRESTLES = os.getenv("XSEDE_PROJECT_ID_TRESTLES")
+if 'trestles.sdsc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_TRESTLES is None:
+    print "ERROR: XSEDE_PROJECT_ID_TRESTLES undefined for any trestles."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
+
+XSEDE_PROJECT_ID_GORDON = os.getenv("XSEDE_PROJECT_ID_GORDON")
+if 'gordon.sdsc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_GORDON is None:
+    print "ERROR: XSEDE_PROJECT_ID_GORDON undefined for any gordon."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
+
+XSEDE_PROJECT_ID_BLACKLIGHT = os.getenv("XSEDE_PROJECT_ID_BLACKLIGHT")
+if 'blacklight.psc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_BLACKLIGHT is None:
+    print "ERROR: XSEDE_PROJECT_ID_BLACKLIGHT undefined for any blacklight."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
 # Ref document "AIMES Demo SC2014", Execution Manager: #1
 # ----------------------------------------------------------------------
@@ -77,44 +109,71 @@ for resource_name in bundle.resources:
     bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
     bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
-# Set allocation for each given resource
-XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
-if 'stampede.tacc.utexas.edu' in bundle.resources and \
-        XSEDE_PROJECT_ID_STAMPEDE is None:
-    print "ERROR: XSEDE_PROJECT_ID_STAMPEDE undefined for any stampede."
-    sys.exit(1)
-else:
-    print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
+# Test bundle API
+for resource in bundle.resources:
+    print "resource.ID: %s" % resource.ID
+    print "resource.queues: %s" % resource.queues
+    print "resource.num_nodes: %s" % resource.num_nodes
+    print "resource.container: %s" % resource.container
+    print "resource.get_bandwidth(resource.ID, IP, 'in'): %s" % resource.get_bandwidth(resource.ID, IP, 'in')
+    print "resource.get_bandwidth(resource.ID, IP, 'out'): %s" % resource.get_bandwidth(resource.ID, IP, 'out')
 
-XSEDE_PROJECT_ID_TRESTLES = os.getenv("XSEDE_PROJECT_ID_TRESTLES")
-if 'trestles.sdsc.xsede.org' in bundle.resources and \
-        XSEDE_PROJECT_ID_TRESTLES is None:
-    print "ERROR: XSEDE_PROJECT_ID_TRESTLES undefined for any trestles."
-    sys.exit(1)
-else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
+for queue in resource.queues:
+    print "queue.ID: %s" % queue.ID
+    print "queue.resource: %s" % queue.resource
+    print "queue.num_nodes: %s" % queue.num_nodes
+    print "queue.num_cores: %s" % queue.num_cores
+    print "queue.num_jobs: %s" % queue.num_jobs
 
-XSEDE_PROJECT_ID_GORDON = os.getenv("XSEDE_PROJECT_ID_GORDON")
-if 'gordon.sdsc.xsede.org' in bundle.resources and \
-        XSEDE_PROJECT_ID_GORDON is None:
-    print "ERROR: XSEDE_PROJECT_ID_GORDON undefined for any gordon."
-    sys.exit(1)
-else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
-
-XSEDE_PROJECT_ID_BLACKLIGHT = os.getenv("XSEDE_PROJECT_ID_BLACKLIGHT")
-if 'blacklight.psc.xsede.org' in bundle.resources and \
-        XSEDE_PROJECT_ID_BLACKLIGHT is None:
-    print "ERROR: XSEDE_PROJECT_ID_BLACKLIGHT undefined for any blacklight."
-    sys.exit(1)
-else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
-
+sys.exit()
 
 # -----------------------------------------------------------------------------
 # skeleton
 # -----------------------------------------------------------------------------
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
+
+# Test skeleton API
+for stage in skeleton.stages:
+    print "stage.ID: %s" % stage.ID
+    print "stage.tasks: %s" % stage.tasks
+
+    # Derive stage size
+    print "len(stage.tasks): %s" % len(stage.tasks)
+
+    # Derive stage duration
+    print "sum(task.runtime for task in stage.tasks): %s" % sum(task.runtime for task in stage.tasks)
+
+    # Derive stage staged-in data
+    print "sum(task.i.size for task in stage.tasks): %s" % sum(task.i.size for task in stage.tasks)
+
+
+for task in skeleton.tasks:
+    print "task.ID: %s" % task.ID
+    print "task.description: %s" % task.description
+    print "task.stage: %s" % task.stage
+    print "task.runtime: %s" % task.runtime
+    print "task.inputs: %s" % task.inputs
+    print "task.outputs: %s" % task.outputs
+    print "task.kernel: %s" % task.kernel
+    print "task.executable: %s" % task.executable
+    print "task.arguments: %s" % task.arguments
+    print "task.cores: %s" % task.cores
+
+    for i in task.inputs:
+        print "i.ID: %s" % i.ID
+        print "i.file_name: %s" % i.file_name
+        print "i.file_path: %s" % i.file_path
+        print "i.size: %s" % i.size
+        print "i.tasks: %s" % i.tasks
+
+    for o in task.outputs:
+        print "o.ID: %s" % o.ID
+        print "o.file_name: %s" % o.file_name
+        print "o.file_path: %s" % o.file_path
+        print "o.size: %s" % o.size
+        print "o.tasks: %s" % o.tasks
+
+sys.exit()
 
 # DEFINE EXECUTION BOUNDARIES
 #
@@ -157,11 +216,21 @@ eur_concurrency = 100
 
 # Number of resources. Question: what is the number of resources that when used
 # to execute the tasks of the workload minimize the TTC?
-eur_resources = 100
+eur_resources_number = 100
 
 # Cutoff data transfer. Question: what metric should be used to evaluate the
 # impact of time spent transferring data on the TTC?
 eur_data_cutoff = 100
+
+# Relevance of available information about resources. We have a set of types of
+# information available for each resource. We need a criterium to define the
+# importance/priority of each type of information on the other. Question: how
+# do we quantify the impact that each dimension has of TTC?
+eur_resources_information_order = ["Queue num_cores",
+                                   "Queue length",
+                                   "Load",
+                                   "Bandwidth in",
+                                   "Bandwidth out"]
 
 # CHOOSE NUMBER OF PILOTS
 #
@@ -170,36 +239,46 @@ eur_data_cutoff = 100
 # concurrency should always be maximized we may decide that we want to
 # start with #pilots = #resources to which we have access.
 
-if eur_resources == 100:
+if eur_resources_number == 100:
     max_number_pilots = len(bundle.resources)
 
 # Account for the time taken by the data staging and drop all the resources
-# that are above the data cutoff.
-
-# Sort the resources by bandwidth
-sorted_bandwidth_in = sorted(bandwidth_in.items(),
-                             key=operator.itemgetter(1))
-sorted_bandwidth_out = sorted(bandwidth_out.items(),
-                              key=operator.itemgetter(1))
-
-sorted_bandwidth_in.reverse()
-sorted_bandwidth_out.reverse()
-
-if eur_data_cutoff == 100:
-    for x, y in ru.misc.window(sorted_bandwidth_in):
-        if x[1] - y[1] >= y[1]:
-            pass
-
+# that are above the data cutoff. NOTE: irrelevant with the workload we use
+# for the demo.
 
 # CHOOSE THE TYPE OF CONTAINER
 #
 # If no container is specified go with the container of the chosen resources.
+# NOTE: irrelevant for this demo, we use only 'job' containers.
 
 # SORT RESOURCES
 #
-# Generate a resource matrix with all the properties that are relevant
-# to choose resources.
+# Generate a resource matrix with all the properties that are relevant to
+# choose resources.
+#
 # Resource ID | load | queue_length | bandwidth in | bandwidth out
+data = dict()
+colums_labels = ["ID"]+eur_resources_information_order
+
+for label in colums_labels:
+    for resource_name in bundle.resources:
+        if label == 'ID':
+            data[label] = resource.ID
+        elif label == 'Queue num_cores':
+            # Current bundle API does not offer default queue handler.
+            break
+        elif label == 'Queue length':
+            # Current bundle API does not offer default queue handler.
+            break
+        elif label == 'Load':
+            # Current bundle API does not expose load.
+            break
+        elif label == 'Bandwidth in':
+            data[label] = bandwidth_in[resource.ID]
+        elif label == 'Bandwidth out':
+            data[label] = bandwidth_out[resource.ID]
+
+resource_matrix = pandas.DataFrame(data)
 
 # CHOOSE RESOURCES
 #

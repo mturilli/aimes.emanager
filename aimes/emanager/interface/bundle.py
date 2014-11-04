@@ -17,10 +17,11 @@ import bundle
 bundle = Bundle('etc/bundle.conf')
 
 for resource in bundle.resources:
-    print resource.ID         # 'stampede.tacc.utexas.edu'
-    print resource.queues     # ['default', 'development', 'large', ...]
-    print resource.num_nodes  # 1234
-    print resource.container  # job, VM
+    print resource.ID             # 'stampede.tacc.utexas.edu'
+    print resource.queues         # ['default', 'development', 'large', ...]
+    print resource.queue_default  # TODO: queue ID
+    print resource.num_nodes      # 1234
+    print resource.container      # job, VM
     print resource.get_bandwidth(resource.ID, IP, 'in')
     print resource.get_bandwidth(resource.ID, IP, 'out')
 
@@ -106,8 +107,8 @@ class Resource(object) :
         # indexed by queue name
         self.queues = dict()
         for queue_name in config['queue_info'] :
-            self.queues[queue_name] = Queue(self.name, queue_name, 
-                                            config['queue_info'][queue_name], 
+            self.queues[queue_name] = Queue(self.name, queue_name,
+                                            config['queue_info'][queue_name],
                                             workload[queue_name])
 
 
