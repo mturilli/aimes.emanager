@@ -170,8 +170,8 @@ for task in skeleton.tasks:
     print "  task.stage       : %s" % task.stage
     print "  task.length      : %s" % task.length
     print "  task.cores       : %s" % task.cores
-    print "  task.ttype       : %s" % task.ttype
-  # print "  task.kernel      : %s" % task.kernel
+    print "  task.task_type   : %s" % task.task_type
+    print "  task.command     : %s" % task.command
   # print "  task.executable  : %s" % task.executable
   # print "  task.arguments   : %s" % task.arguments
 
@@ -184,9 +184,6 @@ for task in skeleton.tasks:
     for i in task.outputs:
         print "    o['name']      : %s" % o['name']
         print "    o['size']      : %s" % o['size']
-
-    import pprint
-    pprint.pprint (aimes.emanager.interface.skeleton.task_to_cud (task))
 
 sys.exit()
 
