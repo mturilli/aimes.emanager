@@ -27,7 +27,15 @@ pip install Pyro4
 
 # Install AIMES software stack
 pip install --upgrade -e git://github.com/applicationskeleton/Skeleton.git@experimental#egg=Skeleton
-pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/bundle@devel-bundles#egg=aimes.bundle
+git clone git@bitbucket.org:shantenujha/aimes aimes.bundle
+cd aimes.bundle
+git checkout devel-bundles
+git pull
+cd modules/bundle
+pip install --upgrade .
+cd ../../../
+
+
 # pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/emanager.git@devel#egg=emanager
 pip install --upgrade .
 
