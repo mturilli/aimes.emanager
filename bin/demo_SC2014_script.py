@@ -274,7 +274,7 @@ if eur_resources_number == 100:
 # Generate a resource matrix with all the properties that are relevant to
 # choose resources.
 #
-# Resource ID | Queue num_cores | queue_length | Load | bandwidth in | bandwidth out
+# Resource ID | Queue num_cores | Queue length | Load | band* in | band* out
 data = dict()
 colums_labels = ["name"]+eur_resources_information_order
 
@@ -316,7 +316,19 @@ for label in colums_labels:
 print data
 
 resource_matrix = pandas.DataFrame(data, columns=colums_labels)
-print resource_matrix
+
+# Sort the resource matrix so to define the priority among target resources.
+resource_priority = resource_matrix.sort(['Queue num_cores',
+                                          'Queue length',
+                                          'Load',
+                                          'Bandwidth in',
+                                          'Bandwidth out'],
+                                         ascending=[False,
+                                                    True,
+                                                    True,
+                                                    False,
+                                                    False])
+print resource_priority
 sys.exit()
 
 
