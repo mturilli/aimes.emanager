@@ -3,9 +3,6 @@
 #
 # . demo_SC2014.sh
 
-export SKELETON_CONF="etc/skeleton_demo_SC2014.conf"
-export BUNDLE_CONF="etc/bundle_demo_SC2014.conf"
-
 cat > description.log <<EOL
 AIMES SC2014 Demo
 
@@ -23,7 +20,7 @@ Allocation: ${XSEDE_PROJECT_ID}
 EOL
 
 which unbuffer > /dev/null
-if test $? = 0; then 
+if test $? = 0; then
   unbuffer demo_SC2014_script.py 2>&1 | tee out.log
 else
   demo_SC2014_script.py 2>&1 | tee out.log
