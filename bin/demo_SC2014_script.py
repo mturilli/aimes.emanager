@@ -113,8 +113,8 @@ for resource_name in bundle.resources:
 # Test bundle API
 print "BUNDLE RESOURCES:"
 for resource_name in bundle.resources:
-    resource = bundle.resources[resource_name] 
-    print 
+    resource = bundle.resources[resource_name]
+    print
     print "resource.name     : %s" % resource.name
     print "resource.num_nodes: %s" % resource.num_nodes
     print "resource.container: %s" % resource.container
@@ -127,16 +127,16 @@ for resource_name in bundle.resources:
         print
         print "  queue.name             : %s" % queue.name
         print "  queue.resource_name    : %s" % queue.resource_name
-        print "  queue.max_walltime     : %s" % queue.max_walltime     
-        print "  queue.num_procs_limit  : %s" % queue.num_procs_limit  
-        print "  queue.alive_nodes      : %s" % queue.alive_nodes      
-        print "  queue.alive_procs      : %s" % queue.alive_procs      
-        print "  queue.busy_nodes       : %s" % queue.busy_nodes       
-        print "  queue.busy_procs       : %s" % queue.busy_procs       
-        print "  queue.free_nodes       : %s" % queue.free_nodes       
-        print "  queue.free_procs       : %s" % queue.free_procs       
+        print "  queue.max_walltime     : %s" % queue.max_walltime
+        print "  queue.num_procs_limit  : %s" % queue.num_procs_limit
+        print "  queue.alive_nodes      : %s" % queue.alive_nodes
+        print "  queue.alive_procs      : %s" % queue.alive_procs
+        print "  queue.busy_nodes       : %s" % queue.busy_nodes
+        print "  queue.busy_procs       : %s" % queue.busy_procs
+        print "  queue.free_nodes       : %s" % queue.free_nodes
+        print "  queue.free_procs       : %s" % queue.free_procs
         print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
-        print "  queue.num_running_jobs : %s" % queue.num_running_jobs 
+        print "  queue.num_running_jobs : %s" % queue.num_running_jobs
 
 # sys.exit()
 
@@ -185,10 +185,10 @@ for task in skeleton.tasks:
         print "    o['name']      : %s" % o['name']
         print "    o['size']      : %s" % o['size']
 
-sys.exit()
 
-# DEFINE EXECUTION BOUNDARIES
-#
+#------------------------------------------------------------------------------
+# Execution Boundaries
+# -----------------------------------------------------------------------------
 # Calculate the min/max time taken by each stage to execute and the
 # mix/max amount of cores needed. Factor data transfer time into min/max
 # time. Note: Max(compute) <=> Min(time) & Min(compute) <=> Max(time)
@@ -209,12 +209,18 @@ for stage in skeleton.stages:
 
     for task in skeleton.tasks:
         stages_compute_limits['max'] += task.cores
-        total_tasks_duration += task.duration
-        if task.duration > max_task_duration:
-            max_task_duration = task.duration
+        total_tasks_duration += task.length
+        if task.length > max_task_duration:
+            max_task_duration = task.length
 
     stages_time_limits['min'] += max_task_duration
     stages_time_limits['max'] += total_tasks_duration
+
+print "Execution boundaries - lowest number of cores: %s" % stages_compute_limits['min']
+print "Execution boundaries - highest number of cores: %s" % stages_compute_limits['max']
+print "Execution boundaries - shortest execution time: %s" % stages_time_limits['min']
+print "Execution boundaries - longest execution time: %s" % stages_time_limits['max']
+
 
 #------------------------------------------------------------------------------
 # Execution Strategy
@@ -268,29 +274,51 @@ if eur_resources_number == 100:
 # Generate a resource matrix with all the properties that are relevant to
 # choose resources.
 #
-# Resource ID | load | queue_length | bandwidth in | bandwidth out
+# Resource ID | Queue num_cores | queue_length | Load | bandwidth in | bandwidth out
 data = dict()
 colums_labels = ["name"]+eur_resources_information_order
 
 for label in colums_labels:
-    for resource_name in bundle.resources:
-        if label == 'name':
-            data[label] = resource.name
-        elif label == 'Queue num_cores':
-            # Current bundle API does not offer default queue handler.
-            break
-        elif label == 'Queue length':
-            # Current bundle API does not offer default queue handler.
-            break
-        elif label == 'Load':
-            # Current bundle API does not expose load.
-            break
-        elif label == 'Bandwidth in':
-            data[label] = bandwidth_in[resource.name]
-        elif label == 'Bandwidth out':
-            data[label] = bandwidth_out[resource.name]
+    data[label] = list()
 
-resource_matrix = pandas.DataFrame(data)
+    for resource_name in bundle.resources:
+        resource = bundle.resources[resource_name]
+
+        if label == 'name':
+            data[label].append(resource.name)
+
+        elif label == 'Queue num_cores':
+            for queue in resource.queues:
+                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                    data[label].append(resource.queues[queue].num_procs_limit)
+                    break
+
+        elif label == 'Queue length':
+            for queue in resource.queues:
+                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                    data[label].append(resource.queues[queue].num_queueing_jobs)
+                    break
+
+        elif label == 'Load':
+            for queue in resource.queues:
+                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                    total = resource.queues[queue].alive_nodes
+                    busy = float(resource.queues[queue].busy_nodes)
+                    data[label].append((busy*100)/total)
+                    break
+
+        elif label == 'Bandwidth in':
+            data[label].append(bandwidth_in[resource.name])
+
+        elif label == 'Bandwidth out':
+            data[label].append(bandwidth_out[resource.name])
+
+print data
+
+resource_matrix = pandas.DataFrame(data, columns=colums_labels)
+print resource_matrix
+sys.exit()
+
 
 # CHOOSE RESOURCES
 #
