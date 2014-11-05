@@ -233,6 +233,8 @@ class Task(object) :
             output_dict['name'] = priv_output['name']
             output_dict['size'] = priv_output['size']
 
+            self.outputs.append (output_dict)
+
 
     # --------------------------------------------------------------------------
     #
