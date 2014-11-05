@@ -59,86 +59,86 @@ if ORIGIN is None:
 else:
     print "IP address: %s" % BUNDLE_CONF
 
------------------------------------------------------------------------------
-bundle
------------------------------------------------------------------------------
-ndle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+# -----------------------------------------------------------------------------
+# bundle
+# -----------------------------------------------------------------------------
+bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
 
 
-Set allocation for each given resource
-EDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
- 'stampede.tacc.utexas.edu' in bundle.resources and \
-      XSEDE_PROJECT_ID_STAMPEDE is None:
-  print "ERROR: XSEDE_PROJECT_ID_STAMPEDE undefined for any stampede."
-  sys.exit(1)
-se:
-  print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
+# Set allocation for each given resource
+XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
+if 'stampede.tacc.utexas.edu' in bundle.resources and \
+        XSEDE_PROJECT_ID_STAMPEDE is None:
+    print "ERROR: XSEDE_PROJECT_ID_STAMPEDE undefined for any stampede."
+    sys.exit(1)
+else:
+    print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
 
-EDE_PROJECT_ID_TRESTLES = os.getenv("XSEDE_PROJECT_ID_TRESTLES")
- 'trestles.sdsc.xsede.org' in bundle.resources and \
-      XSEDE_PROJECT_ID_TRESTLES is None:
-  print "ERROR: XSEDE_PROJECT_ID_TRESTLES undefined for any trestles."
-  sys.exit(1)
-se:
-  print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
+XSEDE_PROJECT_ID_TRESTLES = os.getenv("XSEDE_PROJECT_ID_TRESTLES")
+if 'trestles.sdsc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_TRESTLES is None:
+    print "ERROR: XSEDE_PROJECT_ID_TRESTLES undefined for any trestles."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
 
-EDE_PROJECT_ID_GORDON = os.getenv("XSEDE_PROJECT_ID_GORDON")
- 'gordon.sdsc.xsede.org' in bundle.resources and \
-      XSEDE_PROJECT_ID_GORDON is None:
-  print "ERROR: XSEDE_PROJECT_ID_GORDON undefined for any gordon."
-  sys.exit(1)
-se:
-  print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
+XSEDE_PROJECT_ID_GORDON = os.getenv("XSEDE_PROJECT_ID_GORDON")
+if 'gordon.sdsc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_GORDON is None:
+    print "ERROR: XSEDE_PROJECT_ID_GORDON undefined for any gordon."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
 
-EDE_PROJECT_ID_BLACKLIGHT = os.getenv("XSEDE_PROJECT_ID_BLACKLIGHT")
- 'blacklight.psc.xsede.org' in bundle.resources and \
-      XSEDE_PROJECT_ID_BLACKLIGHT is None:
-  print "ERROR: XSEDE_PROJECT_ID_BLACKLIGHT undefined for any blacklight."
-  sys.exit(1)
-se:
-  print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
+XSEDE_PROJECT_ID_BLACKLIGHT = os.getenv("XSEDE_PROJECT_ID_BLACKLIGHT")
+if 'blacklight.psc.xsede.org' in bundle.resources and \
+        XSEDE_PROJECT_ID_BLACKLIGHT is None:
+    print "ERROR: XSEDE_PROJECT_ID_BLACKLIGHT undefined for any blacklight."
+    sys.exit(1)
+else:
+    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
 
 
-Collect information about the resources to plan the execution strategy.
-ndwidth_in  = dict()
-ndwidth_out = dict()
+# Collect information about the resources to plan the execution strategy.
+bandwidth_in  = dict()
+bandwidth_out = dict()
 
-Get network bandwidth for each resource.
-r resource_name in bundle.resources:
-  resource = bundle.resources[resource_name]
-  bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
-  bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
+# Get network bandwidth for each resource.
+for resource_name in bundle.resources:
+    resource = bundle.resources[resource_name]
+    bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
+    bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
-Test bundle API
-int "BUNDLE RESOURCES:"
-r resource_name in bundle.resources:
-  resource = bundle.resources[resource_name] 
-  print 
-  print "resource.name     : %s" % resource.name
-  print "resource.num_nodes: %s" % resource.num_nodes
-  print "resource.container: %s" % resource.container
-  print "resource.get_bandwidth(IP, 'in') : %s" % resource.get_bandwidth(ORIGIN, 'in')
-  print "resource.get_bandwidth(IP, 'out'): %s" % resource.get_bandwidth(ORIGIN, 'out')
-  print "resource.queues   : %s" % resource.queues.keys()
+# Test bundle API
+print "BUNDLE RESOURCES:"
+for resource_name in bundle.resources:
+    resource = bundle.resources[resource_name] 
+    print 
+    print "resource.name     : %s" % resource.name
+    print "resource.num_nodes: %s" % resource.num_nodes
+    print "resource.container: %s" % resource.container
+    print "resource.get_bandwidth(IP, 'in') : %s" % resource.get_bandwidth(ORIGIN, 'in')
+    print "resource.get_bandwidth(IP, 'out'): %s" % resource.get_bandwidth(ORIGIN, 'out')
+    print "resource.queues   : %s" % resource.queues.keys()
 
-  for queue_name in resource.queues:
-      queue = resource.queues[queue_name]
-      print
-      print "  queue.name             : %s" % queue.name
-      print "  queue.resource_name    : %s" % queue.resource_name
-      print "  queue.max_walltime     : %s" % queue.max_walltime     
-      print "  queue.num_procs_limit  : %s" % queue.num_procs_limit  
-      print "  queue.alive_nodes      : %s" % queue.alive_nodes      
-      print "  queue.alive_procs      : %s" % queue.alive_procs      
-      print "  queue.busy_nodes       : %s" % queue.busy_nodes       
-      print "  queue.busy_procs       : %s" % queue.busy_procs       
-      print "  queue.free_nodes       : %s" % queue.free_nodes       
-      print "  queue.free_procs       : %s" % queue.free_procs       
-      print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
-      print "  queue.num_running_jobs : %s" % queue.num_running_jobs 
+    for queue_name in resource.queues:
+        queue = resource.queues[queue_name]
+        print
+        print "  queue.name             : %s" % queue.name
+        print "  queue.resource_name    : %s" % queue.resource_name
+        print "  queue.max_walltime     : %s" % queue.max_walltime     
+        print "  queue.num_procs_limit  : %s" % queue.num_procs_limit  
+        print "  queue.alive_nodes      : %s" % queue.alive_nodes      
+        print "  queue.alive_procs      : %s" % queue.alive_procs      
+        print "  queue.busy_nodes       : %s" % queue.busy_nodes       
+        print "  queue.busy_procs       : %s" % queue.busy_procs       
+        print "  queue.free_nodes       : %s" % queue.free_nodes       
+        print "  queue.free_procs       : %s" % queue.free_procs       
+        print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
+        print "  queue.num_running_jobs : %s" % queue.num_running_jobs 
 
-sys.exit()
+# sys.exit()
 
 # -----------------------------------------------------------------------------
 # skeleton
