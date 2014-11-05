@@ -97,9 +97,9 @@ class Skeleton(object) :
         self._json  = self._app.as_json  ()
         self._priv  = json.loads (self._json)
 
-        import pprint
-        pprint.pprint (self.shell)
-        pprint.pprint (self._priv)
+      # import pprint
+      # pprint.pprint (self.shell)
+      # pprint.pprint (self._priv)
 
         if self.name.endswith (".input"):
             self.name = self.name[:-6]
