@@ -3,6 +3,8 @@
 #
 # . demo_SC2014.sh
 
+. demo_SC2014_env_setup.sh
+
 cat > description.log <<EOL
 AIMES SC2014 Demo
 
