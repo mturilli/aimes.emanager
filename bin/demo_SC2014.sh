@@ -3,9 +3,6 @@
 #
 # . demo_SC2014.sh
 
-export SKELETON_CONF="etc/skeleton_demo_SC2014.conf"
-export BUNDLE_CONF="etc/bundle_demo_SC2014.conf"
-
 cat > description.log <<EOL
 AIMES SC2014 Demo
 

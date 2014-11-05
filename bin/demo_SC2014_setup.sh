@@ -6,13 +6,16 @@
 # time a new ssh connection is established with the VM from which the demo has
 # to be run.
 #
-# Author: Matteo Turilli <matteo.turilli@rutgers.edu>
+# NOTE: this script assumes to be run within the root directory of the 
+# aimes.emanager repository.
+#
+# Author: Matteo Turilli, Andre Merzky 
 # copyright: Copyright 2014, RADICAL
 # license: MIT
 
 # Set up a clean Virtual Environment
 deactivate
-rm -r ~/Virtualenvs/AIMES-DEMO-SC2014
+rm -rf ~/Virtualenvs/AIMES-DEMO-SC2014
 mkdir -p ~/Virtualenvs/
 virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014
 . ~/Virtualenvs/AIMES-DEMO-SC2014/bin/activate
@@ -21,7 +24,6 @@ virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014
 pip install --upgrade -e git://github.com/radical-cybertools/radical.utils.git@devel#egg=radical.utils
 pip install --upgrade -e git://github.com/radical-cybertools/saga-python.git@devel#egg=saga-python
 pip install --upgrade -e git://github.com/radical-cybertools/radical.pilot.git@devel#egg=radical.pilot
-pip install numpy
 pip install pandas
 pip install Pyro4
 
@@ -34,8 +36,6 @@ git pull
 cd modules/bundle
 pip install --upgrade .
 cd ../../../
-
-
 # pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/emanager.git@devel#egg=emanager
 pip install --upgrade .
 
@@ -46,10 +46,11 @@ export SAGA_VERBOSE=debug            # To be unset for the demo
 export RADICAL_PILOT_VERBOSE=debug   # To be unset for the demo
 
 # Set up eManager execution environment
-export BUNDLE_CONF='~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf'
-export SKELETON_CONF='~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf'
+export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
+export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 export ORIGIN='54.196.51.239'
 
-export XSEDE_PROJECT_ID_STAMPEDE=TG-MCB090174
-export XSEDE_PROJECT_ID_TRESTLES=TG-MCB090174
-
+export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
+export XSEDE_PROJECT_ID_TRESTLES='unc102'
+export XSEDE_PROJECT_ID_GORDON='unc102'
+export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
