@@ -85,6 +85,8 @@ class Skeleton(object) :
 
     """
 
+    # --------------------------------------------------------------------------
+    #
     def __init__(self, filename):
 
         self._app   = aimes.skeleton.Application ("skeleton", filename, 'shell')
@@ -95,9 +97,9 @@ class Skeleton(object) :
         self._json  = self._app.as_json  ()
         self._priv  = json.loads (self._json)
 
-        import pprint
-        pprint.pprint (self.shell)
-        pprint.pprint (self._priv)
+      # import pprint
+      # pprint.pprint (self.shell)
+      # pprint.pprint (self._priv)
 
         if self.name.endswith (".input"):
             self.name = self.name[:-6]
@@ -111,6 +113,8 @@ class Skeleton(object) :
             self.tasks += stage.tasks
 
 
+    # --------------------------------------------------------------------------
+    #
     def __str__ (self) :
 
         out = "Skeleton: %s\n" % self.name
@@ -130,20 +134,55 @@ class Stage(object) :
 
     """
 
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, priv, skeleton):
 
         self._priv    = priv
         self.name     = self._priv['name']
         self.skeleton = weakref.ref (skeleton)
-        self.tasks    = list()
+
+        self.mode              =     self._priv['mode']
+        self.length_para       =     self._priv['length_para']
+        self.processes         =     self._priv['processes']
+        self.task_type         =     self._priv['task_type']
+        self.interleave_option =     self._priv['interleave_option']
+        self.input_para        =     self._priv['input_para']
+        self.inputdir          =     self._priv['inputdir']
+        self.output_para       =     self._priv['output_para']
+        self.outputdir         =     self._priv['outputdir']
+        self.iter_num          = int(self._priv['iter_num'])
+        self.iter_stages       =     self._priv['iter_stages']
+        self.iter_sub          =     self._priv['iter_sub']
+        self.read_buf          = int(self._priv['read_buf'])
+        self.write_buf         = int(self._priv['write_buf'])
+
+        self.tasks = list()
 
         for priv_task in self._priv['task_list']:
             self.tasks.append(Task(priv_task, stage=self))
 
 
+    # --------------------------------------------------------------------------
+    #
     def __str__ (self) :
 
-        out = "  Stage : %s\n" % self.name
+        out  = "  Stage : %s\n" % self.name
+        out += "    mode              : %s\n" % self.mode
+        out += "    length_para       : %s\n" % self.length_para
+        out += "    processes         : %s\n" % self.processes
+        out += "    task_type         : %s\n" % self.task_type
+        out += "    interleave_option : %s\n" % self.interleave_option
+        out += "    input_para        : %s\n" % self.input_para
+        out += "    input_dir         : %s\n" % self.input_dir
+        out += "    output_para       : %s\n" % self.output_para
+        out += "    output_dir        : %s\n" % self.output_dir
+        out += "    iter_num          : %s\n" % self.iter_num
+        out += "    iter_stages       : %s\n" % self.iter_stages
+        out += "    iter_sub          : %s\n" % self.iter_sub
+        out += "    read_buf          : %s\n" % self.read_buf
+        out += "    write_buf         : %s\n" % self.write_buf
+
         for t in self.tasks :
             out += str(t)
         return out
@@ -157,18 +196,26 @@ class Task(object) :
 
     """
 
-    # no public constructor
-
+    # --------------------------------------------------------------------------
+    #
     def __init__ (self, priv, stage):
 
-        self._priv     = priv
-        self.name      = self._priv['taskid']
-        self.stage     = weakref.ref (stage)
-        self.length    = int(self._priv['length'])
-        self.cores     = int(self._priv['processes'])
-        self.ttype     = self._priv['task_type']
-        self.inputs    = list()
-        self.outputs   = list()
+        self._priv = priv
+        self.stage = weakref.ref (stage)
+
+        self.name              =     self._priv['taskid']
+        self.task_type         =     self._priv['task_type']
+        self.mode              =     self._priv['mode']
+        self.command           =     self._priv['command']
+        self.args              =     self._priv['args']
+        self.length            = int(self._priv['length'])
+        self.cores             = int(self._priv['processes'])
+        self.interleave_option =     self._priv['interleave_option']
+        self.read_buf          = int(self._priv['read_buf'])
+        self.write_buf         = int(self._priv['write_buf'])
+
+        self.inputs  = list()
+        self.outputs = list()
 
         # inputs and outputs are represented as dictionaries. One could
         # render those information as classes as well.
@@ -178,10 +225,6 @@ class Task(object) :
             input_dict['name'] = priv_input['name']
             input_dict['size'] = priv_input['size']
 
-          # input_dict['tasks'] = list()
-          # for priv_task in priv_input.tasks:
-          #     input_dict['tasks'].append(Task._create (self._priv))
-
             self.inputs.append (input_dict)
 
 
@@ -190,25 +233,32 @@ class Task(object) :
             output_dict['name'] = priv_output['name']
             output_dict['size'] = priv_output['size']
 
-          # output_dict['tasks'] = list()
-          # for priv_task in priv_output.tasks:
-          #     output_dict['tasks'].append(Task._create (priv_task))
+            self.outputs.append (output_dict)
 
 
+    # --------------------------------------------------------------------------
+    #
     def __str__ (self) :
 
         out  = "    Task: %s\n" % self.name
-        out += "        : cores  : %s\n" % self.cores
-        out += "        : length : %s\n" % self.length
-        out += "        : ttype  : %s\n" % self.ttype
-        out += "        : inputs : %s\n" % len (self.inputs)
+        out += "        : stage             : %s\n" % self.stage.name
+        out += "        : task_type         : %s\n" % self.task_type
+        out += "        : mode              : %s\n" % self.mode
+        out += "        : command           : %s\n" % self.command
+        out += "        : args              : %s\n" % self.args
+        out += "        : length            : %s\n" % self.length
+        out += "        : cores             : %s\n" % self.cores
+        out += "        : interleave_option : %s\n" % self.interleave_option
+        out += "        : read_buf          : %s\n" % self.read_buf
+        out += "        : write_buf         : %s\n" % self.write_buf
 
+        out += "        : inputs            : %s\n" % len (self.inputs)
         for i in self.inputs :
-            out += "        :        : %10s %s\n" % (i['name'], i['size'])
+            out += "        :                   : %10s %s\n" % (i['name'], i['size'])
 
-        out += "        : outputs: %s\n" % len (self.outputs)
+        out += "        : outputs           : %s\n" % len (self.outputs)
         for o in self.outputs :
-            out += "        :        : %10s %s\n" % (i['name'], i['size'])
+            out += "        :                   : %10s %s\n" % (i['name'], i['size'])
 
         return out
 

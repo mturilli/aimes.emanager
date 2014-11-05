@@ -6,7 +6,10 @@
 # time a new ssh connection is established with the VM from which the demo has
 # to be run.
 #
-# Author: Matteo Turilli <matteo.turilli@rutgers.edu>
+# NOTE: this script assumes to be run within the root directory of the
+# aimes.emanager repository.
+#
+# Author: Matteo Turilli, Andre Merzky
 # copyright: Copyright 2014, RADICAL
 # license: MIT
 
@@ -26,8 +29,15 @@ pip install Pyro4
 
 # Install AIMES software stack
 pip install --upgrade -e git://github.com/applicationskeleton/Skeleton.git@experimental#egg=Skeleton
-pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/bundle@devel-bundles#egg=aimes.bundle
-pip install --upgrade -e git://github.com/mturilli/aimes.emanager.git@devel#egg=aimes.emanager
+git clone git@bitbucket.org:shantenujha/aimes aimes.bundle
+cd aimes.bundle
+git checkout devel-bundles
+git pull
+cd modules/bundle
+pip install --upgrade .
+cd ../../../
+# pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/emanager.git@devel#egg=emanager
+pip install --upgrade .
 
 # Set up Radical Pilot execution environment
 export RADICAL_PILOT_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/radicalpilot'
@@ -36,10 +46,11 @@ export SAGA_VERBOSE=debug            # To be unset for the demo
 export RADICAL_PILOT_VERBOSE=debug   # To be unset for the demo
 
 # Set up eManager execution environment
-export BUNDLE_CONF='~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf'
-export SKELETON_CONF='~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf'
+export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
+export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 export ORIGIN='54.196.51.239'
 
-export XSEDE_PROJECT_ID_STAMPEDE=TG-MCB090174
-export XSEDE_PROJECT_ID_TRESTLES=TG-MCB090174
-
+export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
+export XSEDE_PROJECT_ID_TRESTLES='unc102'
+export XSEDE_PROJECT_ID_GORDON='unc102'
+export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
