@@ -149,7 +149,8 @@ setup_args = {
     ],
     'scripts'            : [
         'bin/demo_SC2014.sh',
-        'bin/demo_SC2014_setup.sh',
+        'bin/demo_SC2014_ve_setup.sh',
+        'bin/demo_SC2014_env_setup.sh',
         'bin/demo_SC2014_script.py'
     ],
     'package_data'       : {'' : ['etc/*.conf', 'VERSION', 'VERSION.git']},
