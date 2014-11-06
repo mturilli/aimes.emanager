@@ -57,7 +57,7 @@ class Bundle(object):
         self.bm.load_cluster_credentials(config_file)
 
         self.resource = list()
-        self._priv    = self.bm.get_data ()
+        self._priv    = self.bm.get_data (origin)
 
       # for cluster in self._priv['cluster_list'] :
       #     print "===> %s" % cluster
@@ -68,19 +68,22 @@ class Bundle(object):
       #     print "--   workload"
       #     pprint.pprint (self._priv['cluster_workload'][cluster])
       #     print
-      #     print "--   bandwidth"
-      #     pprint.pprint (self._priv['cluster_bandwidth'][cluster])
+      #     print "--   bandwidths"
+      #     pprint.pprint (self._priv['cluster_bandwidths'][cluster])
       #     print
       #     print
 
         # we have a dictionary of Resources instances, indexed by resource name
         self.resources = dict()
         for resource_name in self._priv['cluster_list']:
-            config    = self._priv['cluster_config'][resource_name]
-            workload  = self._priv['cluster_workload'][resource_name]
-            bandwidth = self._priv['cluster_bandwidth'][resource_name]
+            config     = self._priv['cluster_config'][resource_name]
+            workload   = self._priv['cluster_workload'][resource_name]
+            bandwidths = self._priv['cluster_bandwidths'][resource_name]
 
-            self.resources[resource_name] = Resource (resource_name, config, workload, bandwidth)
+            import pprint
+            pprint.pprint (bandwidths)
+
+            self.resources[resource_name] = Resource (resource_name, config, workload, bandwidths)
 
         # and a list of Queue instances, for all queues of all resources
         self.queues = list()
@@ -98,11 +101,12 @@ class Resource(object) :
 
     """
 
-    def __init__(self, name, config, workload, bandwidth):
+    def __init__(self, name, config, workload, bandwidths):
 
-        self.name      = name
-        self.num_nodes = config['num_nodes']
-        self.container = 'job'   # FIXME
+        self.name       = name
+        self.num_nodes  = config['num_nodes']
+        self.container  = 'job'   # FIXME
+        self.bandwidths = bandwidths
 
         # we have a list of Queue instances, to inspect queue information,
         # indexed by queue name
@@ -114,9 +118,10 @@ class Resource(object) :
 
 
     def get_bandwidth(self, tgt, mode) :
-        # tgt:  target IP number
-        # mode: 'in' or 'out', relative to resource
-        # returns float in mbyte/sec
+
+        if  tgt in self.bandwidths :
+            return self.bandwidths[tgt][mode]
+
         return 0.0
 
 
