@@ -1,0 +1,13 @@
+AIMES SC2014 Demo
+
+Libraries
+---------
+Radical pilot: v0.21-19-g24e568b@(no
+Saga python: 0.22
+
+Infrastructure
+--------------
+Resources: 
+DBURL: mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/radicalpilot
+Allocation: 
+
