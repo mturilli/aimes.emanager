@@ -14,6 +14,8 @@ import sys
 import math
 import pandas
 
+import radical.utils as ru
+
 import radical.pilot
 import aimes.bundle
 import aimes.emanager
@@ -31,8 +33,7 @@ if DBURL is None:
 else:
     print "Session database: %s" % DBURL
 
-# Ref document "AIMES Demo SC2014", Execution Manager: #2
-# ----------------------------------------------------------------------
+# The Skeleton configuration file.
 SKELETON_CONF = os.getenv("SKELETON_CONF")
 if SKELETON_CONF is None:
     print "ERROR: SKELETON_CONF (i.e. skeleton description file) not defined."
@@ -40,8 +41,6 @@ if SKELETON_CONF is None:
 else:
     print "Skeleton description file: %s" % SKELETON_CONF
 
-
-# ----------------------------------------------------------------------
 # The bundle configuration file.
 BUNDLE_CONF = os.getenv("BUNDLE_CONF")
 if BUNDLE_CONF is None:
@@ -58,6 +57,12 @@ if ORIGIN is None:
     sys.exit(1)
 else:
     print "IP address: %s" % BUNDLE_CONF
+
+# -----------------------------------------------------------------------------
+# Reporter
+# -----------------------------------------------------------------------------
+# Create a reporter for the demo. Takes care of colors and font attributes.
+report = ru.Reporter (title='AIMES Demo SC2014')
 
 # -----------------------------------------------------------------------------
 # bundle
@@ -111,11 +116,12 @@ for resource_name in bundle.resources:
     bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
 # Test bundle API
-print "BUNDLE RESOURCES:"
+report.header('Bundle configuration:')
+
 for resource_name in bundle.resources:
     resource = bundle.resources[resource_name]
-    print
-    print "resource.name     : %s" % resource.name
+
+    report.info("resource.name     : %s" % resource.name)
     print "resource.num_nodes: %s" % resource.num_nodes
     print "resource.container: %s" % resource.container
     print "resource.get_bandwidth(IP, 'in') : %s" % resource.get_bandwidth(ORIGIN, 'in')
@@ -157,10 +163,12 @@ for stage in skeleton.stages:
     print "len(stage.tasks) : %s" % len(stage.tasks)
 
     # Derive stage duration
-    print "sum(task.length for task in stage.tasks): %s" % sum(task.length for task in stage.tasks)
+    print "sum(task.length for task in stage.tasks): %s" % \
+        sum(task.length for task in stage.tasks)
 
     # Derive stage staged-in data
-    print "sum(task.cores for task in stage.tasks) : %s" % sum(task.cores for task in stage.tasks)
+    print "sum(task.cores for task in stage.tasks) : %s" % \
+        sum(task.cores for task in stage.tasks)
 
 
 for task in skeleton.tasks:
@@ -210,16 +218,19 @@ for stage in skeleton.stages:
     for task in skeleton.tasks:
         stages_compute_limits['max'] += task.cores
         total_tasks_duration += task.length
+
+        # We assume tasks with heterogeneous runtime.
         if task.length > max_task_duration:
             max_task_duration = task.length
 
     stages_time_limits['min'] += max_task_duration
     stages_time_limits['max'] += total_tasks_duration
 
-print "Execution boundaries - lowest number of cores: %s" % stages_compute_limits['min']
-print "Execution boundaries - highest number of cores: %s" % stages_compute_limits['max']
-print "Execution boundaries - shortest execution time: %s" % stages_time_limits['min']
-print "Execution boundaries - longest execution time: %s" % stages_time_limits['max']
+print "Execution boundaries:"
+print "\tlowest number of cores: %s" % stages_compute_limits['min']
+print "\thighest number of cores: %s" % stages_compute_limits['max']
+print "\tshortest execution time: %s minutes" % stages_time_limits['min']
+print "\tlongest execution time: %s minutes" % stages_time_limits['max']
 
 
 #------------------------------------------------------------------------------
@@ -227,14 +238,17 @@ print "Execution boundaries - longest execution time: %s" % stages_time_limits['
 # -----------------------------------------------------------------------------
 
 # DEFINE EURISTICS
-#
+print "Load heuristics:"
+
 # Degree of concurrency. Question: what amount of concurrent execution
 # minimizes TTC?
 eur_concurrency = 100
+print "\tDegree of task execution concurrency: %s" % eur_concurrency
 
 # Number of resources. Question: what is the number of resources that when used
 # to execute the tasks of the workload minimize the TTC?
-eur_resources_number = 100
+eur_resources_number = 5
+print "\tPercentage of target resources: %s" % eur_resources_number
 
 # Cutoff data transfer. Question: what metric should be used to evaluate the
 # impact of time spent transferring data on the TTC?
@@ -249,16 +263,18 @@ eur_resources_information_order = ["Queue num_cores",
                                    "Load",
                                    "Bandwidth in",
                                    "Bandwidth out"]
+print "\tPriority among type of resource information: %s" % \
+    eur_resources_information_order
 
 # CHOOSE NUMBER OF PILOTS
-#
+print "Apply heuristics to decision points:"
+
 # Adopt an heuristics that tells us how many concurrent resources we
 # should choose given the execution time boundaries. We assume that task
 # concurrency should always be maximized we may decide that we want to
 # start with #pilots = #resources to which we have access.
-
 if eur_resources_number == 100:
-    max_number_pilots = len(bundle.resources)
+    number_pilots = len(bundle.resources)
 
 # Account for the time taken by the data staging and drop all the resources
 # that are above the data cutoff. NOTE: irrelevant with the workload we use
@@ -276,7 +292,7 @@ if eur_resources_number == 100:
 #
 # Resource ID | Queue num_cores | Queue length | Load | band* in | band* out
 data = dict()
-colums_labels = ["name"]+eur_resources_information_order
+colums_labels = ["Name"]+eur_resources_information_order
 
 for label in colums_labels:
     data[label] = list()
@@ -284,7 +300,7 @@ for label in colums_labels:
     for resource_name in bundle.resources:
         resource = bundle.resources[resource_name]
 
-        if label == 'name':
+        if label == 'Name':
             data[label].append(resource.name)
 
         elif label == 'Queue num_cores':
@@ -329,23 +345,60 @@ resource_priority = resource_matrix.sort(['Queue num_cores',
                                                     False,
                                                     False])
 print resource_priority
-sys.exit()
-
 
 # CHOOSE RESOURCES
 #
 # Get the first n resources from the sorted list that, in case, use the
 # required container.
+def uri_to_tag(resource):
+
+    tag = ''
+
+    if resource == 'blacklight.psc.xsede.org':
+        tag = 'xsede.blacklight'
+
+    elif resource == 'gordon.sdsc.xsede.org':
+        tag = 'xsede.gordon'
+
+    elif resource == 'stampede.tacc.utexas.edu':
+        tag = 'xsede.stampede'
+
+    elif resource == 'stampede.tacc.xsede.org':
+        tag = 'xsede.stampede'
+
+    elif resource == 'stampede.xsede.org':
+        tag = 'xsede.stampede'
+
+    elif resource == 'trestles.sdsc.xsede.org':
+        tag = 'xsede.trestles'
+
+    else:
+        sys.exit("Unknown resource specified in bundle: %s" % resource)
+
+    return tag
+
+resource_avail = resource_priority['Name'].tolist()
+resources = list()
+
+while len(resources) < eur_resources_number and \
+      len(resources) < len(resource_avail):
+    resources.append(uri_to_tag(resource_avail[len(resources)]))
+    print resources
+
 
 # CHOOSE THE SCHEDULER FOR THE CUs
 #
-# Depending on whether we have multiple pilot and on what metric needs
-# to bo min/maximized. In this demo we minimize TTC so we choose backfilling.
+# Depending on whether we have multiple pilot and on what metric needs to bo
+# min/maximized. In this demo we minimize TTC so we choose backfilling. Do we
+# have a default scheduler? If so, an else is superfluous.
+if len(resources) > 1:
+    rp_scheduler = 'SCHED_BACKFILLING'
 
 # WE CANNOT CHOOSE ABOUT:
 #
 # - Early/late binding. We use late by default.
 # - Data staging strategies. We do not have this kind of capabilities in RP.
+
 
 #------------------------------------------------------------------------------
 # Callbacks
@@ -398,11 +451,11 @@ def wait_queue_size_cb(umgr, wait_queue_size):
 
 
 # -----------------------------------------------------------------------------
-# Experiment
+# RUN DEMO
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
 
-    # SESSION ------------------------------------------------------
+    # SESSION
     print "Creating session..."
     session = radical.pilot.Session(database_url=DBURL)
     context = radical.pilot.Context('ssh')
@@ -412,7 +465,7 @@ if __name__ == "__main__":
     print "\tSession UID: {0}".format(session.uid)
 
     try:
-        # PILOT MANAGER ------------------------------------------------
+        # PILOT MANAGER
         # One pilot manager is used for all pilots.
         print "Initializing Pilot Manager..."
         pmgr = radical.pilot.PilotManager(session=session)
@@ -425,118 +478,118 @@ if __name__ == "__main__":
         pmgr.register_callback(pilot_state_cb)
 
 
-        # PILOTS -------------------------------------------------------
+        # PILOTS
         # Number of cored for each pilot. NOTE: here there is space for
-        # optimizations/decisions. Do we assign n cores to each pilot
-        # with n = BAG_SIZE so that each single pilot can execute the
-        # whole bag with maximal concurrency? Do we maximize the number
-        # of resource asked esking BAG_SIZE/len(RESOURCES) cores for
-        # each pilot? We might have to collect data about each option.
-        print "Creating %i pilot descriptions..." % len(RESOURCES)
+        # optimizations/decisions. Do we assign n cores to each pilot with n =
+        # BAG_SIZE so that each single pilot can execute the whole bag with
+        # maximal concurrency? Do we maximize the number of resource asked
+        # BAG_SIZE/len(resources) cores for each pilot? We might have to
+        # collect data about each option.
+        print "Creating %i pilot descriptions..." % len(resources)
 
-        cores = math.ceil(BAG_SIZE/len(RESOURCES))
+        cores = math.ceil((stages_compute_limits['max']*eur_concurrency)/100.0)
+        print "\tDEBUG: number of cores to execute all the skeleton: %d" % cores
+
+        # TODO: derive overhead dynamically from stage_in time + agent
+        # bootstrap + agent task queue management overheads
+        rp_overhead = 10
 
         # List of all the pilot descriptions
         pdescs = []
 
         # Create a pilot description for each resource
-        for resource in RESOURCES:
+        for resource in resources:
             pdesc = radical.pilot.ComputePilotDescription()
 
             if 'stampede' in resource:
-                pdesc.project  = XSEDE_PROJECT_ID_STAMPEDE
+                pdesc.project = XSEDE_PROJECT_ID_STAMPEDE
             elif 'trestles' in resource:
-                pdesc.project  = XSEDE_PROJECT_ID_TRESTLES
+                pdesc.project = XSEDE_PROJECT_ID_TRESTLES
             elif 'gordon' in resource:
-                pdesc.project  = XSEDE_PROJECT_ID_GORDON
+                pdesc.project = XSEDE_PROJECT_ID_GORDON
             elif 'blacklight' in resource:
-                pdesc.project  = XSEDE_PROJECT_ID_BLACKLIGHT
+                pdesc.project = XSEDE_PROJECT_ID_BLACKLIGHT
             else:
-                print "ERROR: No XSEDE_PROJECT_ID given for resource %s." % resource
+                print "ERROR: No XSEDE_PROJECT_ID given for resource %s." % \
+                    resource
                 sys.exit(1)
 
             pdesc.resource = resource  # label
-            pdesc.runtime  = RUNTIME   # minutes
-            pdesc.cores    = cores
-            pdesc.cleanup  = True
+
+            # We assume a uniform distribution of the total amount of cores
+            # across all the available pilots. Future optimizations may take
+            # into consideration properties of the resources that would justify
+            # a bias distribution of the cores.
+            pdesc.cores = math.ceil(float(cores/len(resources)))
+
+            # We assume enough runtime for each pilot to run all the tasks of
+            # the skeleton. This covers the case in which one pilot comes
+            # online while all the others are still queued and the time delta
+            # between the first and the second pilot coming online is greater
+            # that the time that takes to run all the tasks on a single pilot
+            # with 'number of tasks in the skeleton'/'number of pilots' cores.
+            # NOTE: runtime expressed in minutes.
+            pdesc.runtime = (math.ceil(
+                             (math.ceil(
+                              float(stages_time_limits['max'] /
+                                    pdesc.cores))) /
+                             60.0) +
+                             rp_overhead)
+
+            pdesc.cleanup = True
             pdescs.append(pdesc)
-            print "\tPilot description for %s created with %i cores." % (resource, cores)
+            print "\tPilot description for %s created with %i cores." % \
+                (resource, cores)
+
+        for pdesc in pdescs:
+            print pdesc
+
+        sys.exit()
 
         # Submit the pilots just described.
         print "Submit pilots..."
         pilots = pmgr.submit_pilots(pdescs)
 
+        # WORKLOAD
 
-        # DATA STAGING -------------------------------------------------
-        # Input file shared by all the CUs. Where is the file? Define
-        # the url of the local file in the local directory.
-        print "Staging data..."
-        shared_input_file_url = saga.Url('file://%s' % (SHARED_INPUT_FILE))
+        # EXECUTION PATTERN: two stages, sequential:
+        # - Describe CU for stage 1.
+        # - Describe CU for stage 2.
+        # - Run Stage 1.
+        # - Retrieve all the output files from Stage 1.
+        # - Stage all the output files of Stage 1 as input files for Stage 2 on
+        #   all the remote resources on which a pilot is queued.
+        # - Execute the task of Stage 2.
+        # - Retrieve the output files.
 
-        # For each pilot described: define and open a staging directory
-        # on the remote machine and then copy the input file into it.
-        # All this is likely to be hidded soon from the user within the
-        # scheduler (?).
-        if hasattr(pilots, '__iter__'):
-            for pilot in pilots:
-                remote_dir_url = saga.Url(os.path.join(pilot.sandbox,
-                    'staging_area'))
-                remote_dir = saga.filesystem.Directory(remote_dir_url,
-                    flags=saga.filesystem.CREATE_PARENTS)
-                print "\tCreating staging area on %s" % remote_dir_url
-                print "\tCopying %s to %s" % (shared_input_file_url, remote_dir_url)
-                remote_dir.copy(shared_input_file_url, '.')
-        else:
-            remote_dir_url = saga.Url(os.path.join(pilots.sandbox,
-                'staging_area'))
-            remote_dir = saga.filesystem.Directory(remote_dir_url,
-                flags=saga.filesystem.CREATE_PARENTS)
-            print "\tCreating staging area on %s" % remote_dir_url
-            print "\tCopying %s to %s" % (shared_input_file_url, remote_dir_url)
-            remote_dir.copy(shared_input_file_url, '.')
+        # CUs descriptions Stage 1
+        print ("Creating Compute Units Stage 1: "),
+        stage_1_cuds = []
 
-        # Now that we have a staging area for each pilot, we specify an
-        # action to link the input file that we have transferred into
-        # the staging areas within the pilot sandbox. Basically, we need
-        # to make the same file available to every task we will execute
-        # in a pilot. Instead of copying the file to each task location,
-        # we link it (ln -s) within the sandbox they share. This action
-        # is not performed immediately, here it is just specified so to
-        # be used later when specifying the tasks. Note the triple
-        # slash, needed by saga.python.
-        sd_shared = {'source': 'staging:///%s' % os.path.basename(SHARED_INPUT_FILE),
-                     'action':  radical.pilot.LINK}
+        # for unit_count in range(0, BAG_SIZE):
+        #     # OUPUT - Configure the staging action for output files.
+        #     sd_outputs = {'source': ['state.cpt'   ,
+        #                              'confout.gro' ,
+        #                              'ener.edr'    ,
+        #                              'traj.trr'    ,
+        #                              'md.log'      ],
+        #                   'target': ['outputs/state-%d.cpt'   % unit_count,
+        #                              'outputs/confout-%d.gro' % unit_count,
+        #                              'outputs/ener-%d.edr'    % unit_count,
+        #                              'outputs/traj-%d.trr'    % unit_count,
+        #                              'outputs/md-%d.log'      % unit_count],
+        #                   'action':  radical.pilot.TRANSFER,
+        #                   'flags' :  radical.pilot.CREATE_PARENTS}
 
+        #     cud = radical.pilot.ComputeUnitDescription()
+        #     cud.kernel         = 'GROMACS'
+        #     cud.arguments      = ['-s', os.path.basename(SHARED_INPUT_FILE)]
+        #     cud.cores          = 1
+        #     cud.input_staging  = sd_shared
+        #     cud.output_staging = sd_outputs
 
-        # WORKLOAD -----------------------------------------------------
-        # BAG_SIZE number of tasks to be executed on len(RESOURCES)
-        print ("Creating %i Compute Units: " % BAG_SIZE),
-        cuds = []
-
-        for unit_count in range(0, BAG_SIZE):
-            # OUPUT - Configure the staging action for output files.
-            sd_outputs = {'source': ['state.cpt'   ,
-                                     'confout.gro' ,
-                                     'ener.edr'    ,
-                                     'traj.trr'    ,
-                                     'md.log'      ],
-                          'target': ['outputs/state-%d.cpt'   % unit_count,
-                                     'outputs/confout-%d.gro' % unit_count,
-                                     'outputs/ener-%d.edr'    % unit_count,
-                                     'outputs/traj-%d.trr'    % unit_count,
-                                     'outputs/md-%d.log'      % unit_count],
-                          'action':  radical.pilot.TRANSFER,
-                          'flags' :  radical.pilot.CREATE_PARENTS}
-
-            cud = radical.pilot.ComputeUnitDescription()
-            cud.kernel         = 'GROMACS'
-            cud.arguments      = ['-s', os.path.basename(SHARED_INPUT_FILE)]
-            cud.cores          = 1
-            cud.input_staging  = sd_shared
-            cud.output_staging = sd_outputs
-
-            cuds.append(cud)
-            print ('%i,' % unit_count),
+        stage_1_cuds.append(cud)
+        print ('%i,' % unit_count),
 
         # UNIT MANAGERS ------------------------------------------------
         # Combine the ComputePilot, the ComputeUnits and a scheduler via
@@ -547,7 +600,7 @@ if __name__ == "__main__":
         print "\nInitializing Unit Manager..."
         umgr = radical.pilot.UnitManager(
             session=session,
-            scheduler=radical.pilot.SCHED_BACKFILLING)
+            scheduler=radical.pilot.rp_scheduler)
 
         print "\tUnit Manager UIDs: {0}".format(session.list_unit_managers())
 
