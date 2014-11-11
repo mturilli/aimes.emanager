@@ -189,7 +189,7 @@ for task in skeleton.tasks:
         print "    i['size']      : %s" % i['size']
 
     print "  task.outputs"
-    for i in task.outputs:
+    for o in task.outputs:
         print "    o['name']      : %s" % o['name']
         print "    o['size']      : %s" % o['size']
 
