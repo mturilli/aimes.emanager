@@ -144,6 +144,7 @@ for resource_name in bundle.resources:
 # skeleton
 # -----------------------------------------------------------------------------
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
+skeleton.setup ()
 
 # Test skeleton API
 print "SKELETON STAGES:"
