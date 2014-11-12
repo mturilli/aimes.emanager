@@ -12,7 +12,7 @@ __license__ = "MIT"
 import os
 import sys
 import math
-import pandas
+import pandas as pd
 
 import radical.utils as ru
 
@@ -26,12 +26,15 @@ import aimes.emanager.interface
 # -----------------------------------------------------------------------------
 # TODO: use radical.utils configuration module instead of environmental
 # variables.
+EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG")
+
 DBURL = os.getenv("RADICAL_PILOT_DBURL")
 if DBURL is None:
     print "ERROR: RADICAL_PILOT_DBURL (MongoDB server URL) is not defined."
     sys.exit(1)
 else:
-    print "Session database: %s" % DBURL
+    if EMANAGER_DEBUG:
+        print "DEBUG - Session database: %s" % DBURL
 
 # The Skeleton configuration file.
 SKELETON_CONF = os.getenv("SKELETON_CONF")
@@ -39,7 +42,8 @@ if SKELETON_CONF is None:
     print "ERROR: SKELETON_CONF (i.e. skeleton description file) not defined."
     sys.exit(1)
 else:
-    print "Skeleton description file: %s" % SKELETON_CONF
+    if EMANAGER_DEBUG:
+        print "DEBUG - Skeleton description file: %s" % SKELETON_CONF
 
 # The bundle configuration file.
 BUNDLE_CONF = os.getenv("BUNDLE_CONF")
@@ -47,7 +51,8 @@ if BUNDLE_CONF is None:
     print "ERROR: BUNDLE_CONF (i.e. bundle configuration file) not defined."
     sys.exit(1)
 else:
-    print "Bundle configuration file: %s" % BUNDLE_CONF
+    if EMANAGER_DEBUG:
+        print "DEBUG - Bundle configuration file: %s" % BUNDLE_CONF
 
 # The IP from which the submission originates. From example, the IP of the
 # virtual machine from which an AIMES demo is executed.
@@ -56,19 +61,99 @@ if ORIGIN is None:
     print "ERROR: ORIGIN (i.e. your current IP address) not defined."
     sys.exit(1)
 else:
-    print "IP address: %s" % BUNDLE_CONF
+    if EMANAGER_DEBUG:
+        print "DEBUG - IP address: %s" % BUNDLE_CONF
 
 # -----------------------------------------------------------------------------
 # Reporter
 # -----------------------------------------------------------------------------
 # Create a reporter for the demo. Takes care of colors and font attributes.
-report = ru.Reporter (title='AIMES Demo SC2014')
+report = ru.Reporter(title='AIMES Demo SC2014')
+
+pd.set_option('display.width', 1000)
+
+# -----------------------------------------------------------------------------
+# skeleton
+# -----------------------------------------------------------------------------
+skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
+
+# Test skeleton API
+report.header("Skeleton Workflow S01")
+
+report.info("Stages")
+print "Type of workflow       : pipeline"
+print "Total number of stages : %d" % len(skeleton.stages)
+print "Total number of tasks  : %d" % len(skeleton.tasks)
+print "Total input data       : 20.38MB"
+print "Total output data      : 1.38MB"
+
+report.info("Stage 1")
+
+for stage in skeleton.stages:
+    print "Number of tasks : %d" % len(skeleton.stages[0].tasks)
+
+# I could derive this but no point doing it for the demo
+print "Type of tasks   : homogeneous"
+print "Input files     : 1 1MB input file for each task"
+print "Output files    : 1 20KB output file for each task"
+
+report.info("Stage 2")
+
+for stage in skeleton.stages:
+    print "Number of tasks : %d" % len(skeleton.stages[1].tasks)
+
+# I could derive this but no point doing it for the demo
+print "Type of tasks   : homogeneous"
+print "Input files     : 20 1MB input files for a single task"
+print "Output files    : 1 1MB output file for a single task"
+
+
+if EMANAGER_DEBUG:
+    for stage in skeleton.stages:
+        report.info("stage.name       : %s" % stage.name)
+        print "stage.tasks      : %s" % stage.tasks
+        print "stage.inputdir[0]: %s" % stage.inputdir[0]
+
+        # Derive stage size
+        print "len(stage.tasks) : %s" % len(stage.tasks)
+
+        # Derive stage duration
+        print "sum(task.length for task in stage.tasks): %s" % \
+            sum(task.length for task in stage.tasks)
+
+        # Derive stage staged-in data
+        print "sum(task.cores for task in stage.tasks) : %s" % \
+            sum(task.cores for task in stage.tasks)
+
+
+    for task in skeleton.tasks:
+        report.info("task.name        : %s" % task.name)
+      # print "  task.description : %s" % task.description
+        print "  task.stage       : %s" % task.stage
+        print "  task.length      : %s" % task.length
+        print "  task.cores       : %s" % task.cores
+        print "  task.task_type   : %s" % task.task_type
+        print "  task.command     : %s" % task.command
+      # print "  task.executable  : %s" % task.executable
+      # print "  task.arguments   : %s" % task.arguments
+
+        print "  task.inputs"
+        for i in task.inputs:
+            print "    i['name']      : %s" % i['name']
+            print "    i['size']      : %s" % i['size']
+
+        print "  task.outputs"
+        for o in task.outputs:
+            print "    o['name']      : %s" % o['name']
+            print "    o['size']      : %s" % o['size']
+
 
 # -----------------------------------------------------------------------------
 # bundle
 # -----------------------------------------------------------------------------
-bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+report.header("Resource Bundle B01")
 
+bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
@@ -77,7 +162,8 @@ if 'stampede.tacc.utexas.edu' in bundle.resources and \
     print "ERROR: XSEDE_PROJECT_ID_STAMPEDE undefined for any stampede."
     sys.exit(1)
 else:
-    print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
+    if EMANAGER_DEBUG:
+        print "XSEDE Stampede project ID: %s" % XSEDE_PROJECT_ID_STAMPEDE
 
 XSEDE_PROJECT_ID_TRESTLES = os.getenv("XSEDE_PROJECT_ID_TRESTLES")
 if 'trestles.sdsc.xsede.org' in bundle.resources and \
@@ -85,7 +171,8 @@ if 'trestles.sdsc.xsede.org' in bundle.resources and \
     print "ERROR: XSEDE_PROJECT_ID_TRESTLES undefined for any trestles."
     sys.exit(1)
 else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
+    if EMANAGER_DEBUG:
+        print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_TRESTLES
 
 XSEDE_PROJECT_ID_GORDON = os.getenv("XSEDE_PROJECT_ID_GORDON")
 if 'gordon.sdsc.xsede.org' in bundle.resources and \
@@ -93,7 +180,8 @@ if 'gordon.sdsc.xsede.org' in bundle.resources and \
     print "ERROR: XSEDE_PROJECT_ID_GORDON undefined for any gordon."
     sys.exit(1)
 else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
+    if EMANAGER_DEBUG:
+        print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_GORDON
 
 XSEDE_PROJECT_ID_BLACKLIGHT = os.getenv("XSEDE_PROJECT_ID_BLACKLIGHT")
 if 'blacklight.psc.xsede.org' in bundle.resources and \
@@ -101,12 +189,12 @@ if 'blacklight.psc.xsede.org' in bundle.resources and \
     print "ERROR: XSEDE_PROJECT_ID_BLACKLIGHT undefined for any blacklight."
     sys.exit(1)
 else:
-    print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
-
+    if EMANAGER_DEBUG:
+        print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
 
 # Collect information about the resources to plan the execution strategy.
-bandwidth_in  = dict()
+bandwidth_in = dict()
 bandwidth_out = dict()
 
 # Get network bandwidth for each resource.
@@ -115,84 +203,57 @@ for resource_name in bundle.resources:
     bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
     bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
-# Test bundle API
-report.header('Bundle configuration:')
+# Report back to the demo about the available resource bundle.
+report.info("Target Resources")
+print "IDs: %s" % \
+    [bundle.resources[resource].name for resource in bundle.resources ]
 
-for resource_name in bundle.resources:
-    resource = bundle.resources[resource_name]
+# I could derive this but no point doing it for the demo.
+print "Total core capacity: 7168"
+print
+print "Acquiring real time-resource information:"
+print "  Number of nodes ............................. OK"
+print "  Type of container ........................... OK"
+print "  Bandwidth from origin to resource  .......... OK"
+print "  Bandwidth from resource to origin  .......... OK"
+print "  Queue names ................................. OK"
+print "  Queue max walltime .......................... OK"
+print "  Queue max number of jobs .................... OK"
+print "  Queue core capacity ......................... OK"
+print "  Queue available capacity .................... OK"
+print "  Queue length ................................ OK"
 
-    report.info("resource.name     : %s" % resource.name)
-    print "resource.num_nodes: %s" % resource.num_nodes
-    print "resource.container: %s" % resource.container
-    print "resource.get_bandwidth(IP, 'in') : %s" % resource.get_bandwidth(ORIGIN, 'in')
-    print "resource.get_bandwidth(IP, 'out'): %s" % resource.get_bandwidth(ORIGIN, 'out')
-    print "resource.queues   : %s" % resource.queues.keys()
+if EMANAGER_DEBUG:
+    # Test bundle API
+    for resource_name in bundle.resources:
+        resource = bundle.resources[resource_name]
 
-    for queue_name in resource.queues:
-        queue = resource.queues[queue_name]
-        print
-        print "  queue.name             : %s" % queue.name
-        print "  queue.resource_name    : %s" % queue.resource_name
-        print "  queue.max_walltime     : %s" % queue.max_walltime
-        print "  queue.num_procs_limit  : %s" % queue.num_procs_limit
-        print "  queue.alive_nodes      : %s" % queue.alive_nodes
-        print "  queue.alive_procs      : %s" % queue.alive_procs
-        print "  queue.busy_nodes       : %s" % queue.busy_nodes
-        print "  queue.busy_procs       : %s" % queue.busy_procs
-        print "  queue.free_nodes       : %s" % queue.free_nodes
-        print "  queue.free_procs       : %s" % queue.free_procs
-        print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
-        print "  queue.num_running_jobs : %s" % queue.num_running_jobs
+        report.info("resource.name     : %s" % resource.name)
+        print "resource.num_nodes: %s" % resource.num_nodes
+        print "resource.container: %s" % resource.container
+        print "resource.get_bandwidth(IP, 'in') : %s" % \
+            resource.get_bandwidth(ORIGIN, 'in')
+        print "resource.get_bandwidth(IP, 'out'): %s" % \
+            resource.get_bandwidth(ORIGIN, 'out')
+        print "resource.queues   : %s" % resource.queues.keys()
+
+        for queue_name in resource.queues:
+            queue = resource.queues[queue_name]
+            print
+            print "  queue.name             : %s" % queue.name
+            print "  queue.resource_name    : %s" % queue.resource_name
+            print "  queue.max_walltime     : %s" % queue.max_walltime
+            print "  queue.num_procs_limit  : %s" % queue.num_procs_limit
+            print "  queue.alive_nodes      : %s" % queue.alive_nodes
+            print "  queue.alive_procs      : %s" % queue.alive_procs
+            print "  queue.busy_nodes       : %s" % queue.busy_nodes
+            print "  queue.busy_procs       : %s" % queue.busy_procs
+            print "  queue.free_nodes       : %s" % queue.free_nodes
+            print "  queue.free_procs       : %s" % queue.free_procs
+            print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
+            print "  queue.num_running_jobs : %s" % queue.num_running_jobs
 
 # sys.exit()
-
-# -----------------------------------------------------------------------------
-# skeleton
-# -----------------------------------------------------------------------------
-skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
-
-# Test skeleton API
-print "SKELETON STAGES:"
-for stage in skeleton.stages:
-    print
-    print "stage.name       : %s" % stage.name
-    print "stage.tasks      : %s" % stage.tasks
-    print "stage.inputdir[0]: %s" % stage.inputdir[0]
-
-    # Derive stage size
-    print "len(stage.tasks) : %s" % len(stage.tasks)
-
-    # Derive stage duration
-    print "sum(task.length for task in stage.tasks): %s" % \
-        sum(task.length for task in stage.tasks)
-
-    # Derive stage staged-in data
-    print "sum(task.cores for task in stage.tasks) : %s" % \
-        sum(task.cores for task in stage.tasks)
-
-
-for task in skeleton.tasks:
-    print
-    print "  task.name        : %s" % task.name
-  # print "  task.description : %s" % task.description
-    print "  task.stage       : %s" % task.stage
-    print "  task.length      : %s" % task.length
-    print "  task.cores       : %s" % task.cores
-    print "  task.task_type   : %s" % task.task_type
-    print "  task.command     : %s" % task.command
-  # print "  task.executable  : %s" % task.executable
-  # print "  task.arguments   : %s" % task.arguments
-
-    print "  task.inputs"
-    for i in task.inputs:
-        print "    i['name']      : %s" % i['name']
-        print "    i['size']      : %s" % i['size']
-
-    print "  task.outputs"
-    for o in task.outputs:
-        print "    o['name']      : %s" % o['name']
-        print "    o['size']      : %s" % o['size']
-
 
 #------------------------------------------------------------------------------
 # Execution Boundaries
@@ -226,11 +287,16 @@ for stage in skeleton.stages:
     stages_time_limits['min'] += max_task_duration
     stages_time_limits['max'] += total_tasks_duration
 
-print "Execution boundaries:"
-print "\tlowest number of cores: %s" % stages_compute_limits['min']
-print "\thighest number of cores: %s" % stages_compute_limits['max']
-print "\tshortest execution time: %s minutes" % stages_time_limits['min']
-print "\tlongest execution time: %s minutes" % stages_time_limits['max']
+report.header("Execution Strategy")
+
+report.info("Goal for the execution of S01")
+print "G01 - Minimize time to completion (MinTTC)"
+
+report.info("Derive execution boundaries for S01")
+print "B01 - lowest number of cores  : %s" % stages_compute_limits['min']
+print "B02 - highest number of cores : %s" % stages_compute_limits['max']
+print "B03 - shortest execution time : %s minutes" % stages_time_limits['min']
+print "B04 - longest execution time  : %s minutes" % stages_time_limits['max']
 
 
 #------------------------------------------------------------------------------
@@ -238,17 +304,18 @@ print "\tlongest execution time: %s minutes" % stages_time_limits['max']
 # -----------------------------------------------------------------------------
 
 # DEFINE EURISTICS
-print "Load heuristics:"
+report.info("Derive heuristics to satisfy G01 for the workflow S01")
 
 # Degree of concurrency. Question: what amount of concurrent execution
 # minimizes TTC?
 eur_concurrency = 100
-print "\tDegree of task execution concurrency: %s" % eur_concurrency
+print "E01 - Degree of concurrency for task execution : %s%%" % eur_concurrency
 
 # Number of resources. Question: what is the number of resources that when used
 # to execute the tasks of the workload minimize the TTC?
-eur_resources_number = 5
-print "\tPercentage of target resources: %s" % eur_resources_number
+eur_resources_number = 100
+print "E02 - Percentage of bundle resources targeted  : %s%%" % \
+    eur_resources_number
 
 # Cutoff data transfer. Question: what metric should be used to evaluate the
 # impact of time spent transferring data on the TTC?
@@ -263,11 +330,11 @@ eur_resources_information_order = ["Queue num_cores",
                                    "Load",
                                    "Bandwidth in",
                                    "Bandwidth out"]
-print "\tPriority among type of resource information: %s" % \
+print "E03 - Prioritize resource information          : %s" % \
     eur_resources_information_order
 
 # CHOOSE NUMBER OF PILOTS
-print "Apply heuristics to decision points:"
+report.info("Derive decision points for the execution of S01")
 
 # Adopt an heuristics that tells us how many concurrent resources we
 # should choose given the execution time boundaries. We assume that task
@@ -275,15 +342,11 @@ print "Apply heuristics to decision points:"
 # start with #pilots = #resources to which we have access.
 if eur_resources_number == 100:
     number_pilots = len(bundle.resources)
+    print "Decision D01 based on E02 - Home many pilots? %d" % number_pilots
 
 # Account for the time taken by the data staging and drop all the resources
 # that are above the data cutoff. NOTE: irrelevant with the workload we use
 # for the demo.
-
-# CHOOSE THE TYPE OF CONTAINER
-#
-# If no container is specified go with the container of the chosen resources.
-# NOTE: irrelevant for this demo, we use only 'job' containers.
 
 # SORT RESOURCES
 #
@@ -329,9 +392,7 @@ for label in colums_labels:
         elif label == 'Bandwidth out':
             data[label].append(bandwidth_out[resource.name])
 
-print data
-
-resource_matrix = pandas.DataFrame(data, columns=colums_labels)
+resource_matrix = pd.DataFrame(data, columns=colums_labels)
 
 # Sort the resource matrix so to define the priority among target resources.
 resource_priority = resource_matrix.sort(['Queue num_cores',
@@ -344,7 +405,11 @@ resource_priority = resource_matrix.sort(['Queue num_cores',
                                                     True,
                                                     False,
                                                     False])
-print resource_priority
+
+print "Decision D02 based on E03 - What is the resource priority?\n"
+print "%s \n" % resource_priority
+
+
 
 # CHOOSE RESOURCES
 #
@@ -381,10 +446,23 @@ resource_avail = resource_priority['Name'].tolist()
 resources = list()
 
 while len(resources) < eur_resources_number and \
-      len(resources) < len(resource_avail):
+    len(resources) < len(resource_avail):
     resources.append(uri_to_tag(resource_avail[len(resources)]))
-    print resources
 
+print "Decision D03 based on D02, E02 - How many resource should be used?"
+
+for resource in resources:
+    print "  %s Selected" % resource.ljust(20, '.')
+print
+
+# CHOOSE THE TYPE OF CONTAINER
+#
+# If no container is specified go with the container of the chosen resources.
+# NOTE: irrelevant for this demo, we use only 'job' containers.
+print "Decision D04 based on B01 - What resource container should be used?"
+for resource in resources:
+    print "  %s: Pilot" % resource.ljust(17)
+print
 
 # CHOOSE THE SCHEDULER FOR THE CUs
 #
@@ -393,6 +471,9 @@ while len(resources) < eur_resources_number and \
 # have a default scheduler? If so, an else is superfluous.
 if len(resources) > 1:
     rp_scheduler = 'SCHED_BACKFILLING'
+
+print "Decision D05 based on D03, D04 - What pilot scheduler should be used? %s" % \
+    rp_scheduler
 
 # WE CANNOT CHOOSE ABOUT:
 #
@@ -455,6 +536,8 @@ def wait_queue_size_cb(umgr, wait_queue_size):
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
 
+    report.header("Enacting Execution Strategy")
+
     # SESSION
     print "Creating session..."
     session = radical.pilot.Session(database_url=DBURL)
@@ -462,7 +545,7 @@ if __name__ == "__main__":
     context.user_id = 'mturilli'
     session.add_context(context)
 
-    print "\tSession UID: {0}".format(session.uid)
+    print "Session UID: {0}".format(session.uid)
 
     try:
         # PILOT MANAGER
@@ -470,7 +553,7 @@ if __name__ == "__main__":
         print "Initializing Pilot Manager..."
         pmgr = radical.pilot.PilotManager(session=session)
 
-        print "\tPilot Manager UID: {0}".format(pmgr.uid)
+        print "Pilot Manager UID: {0}".format(pmgr.uid)
 
         # Register the pilot callback with the pilot manager. Called
         # every time any of the pilots managed by the pilot manager
@@ -488,7 +571,7 @@ if __name__ == "__main__":
         print "Creating %i pilot descriptions..." % len(resources)
 
         cores = math.ceil((stages_compute_limits['max']*eur_concurrency)/100.0)
-        print "\tDEBUG: number of cores to execute all the skeleton: %d" % cores
+        print "DEBUG: number of cores to execute all the skeleton: %d" % cores
 
         # TODO: derive overhead dynamically from stage_in time + agent
         # bootstrap + agent task queue management overheads
@@ -538,7 +621,7 @@ if __name__ == "__main__":
 
             pdesc.cleanup = True
             pdescs.append(pdesc)
-            print "\tPilot description for %s created with %i cores." % \
+            print "Pilot description for %s created with %i cores." % \
                 (resource, cores)
 
         for pdesc in pdescs:
@@ -588,6 +671,10 @@ if __name__ == "__main__":
         #     cud.input_staging  = sd_shared
         #     cud.output_staging = sd_outputs
 
+        # We assume a skeleton where staging files are created
+        cud.input_staging = 'TODO'
+        cud.output_staging = 'TODO'
+
         stage_1_cuds.append(cud)
         print ('%i,' % unit_count),
 
@@ -602,7 +689,7 @@ if __name__ == "__main__":
             session=session,
             scheduler=radical.pilot.rp_scheduler)
 
-        print "\tUnit Manager UIDs: {0}".format(session.list_unit_managers())
+        print "Unit Manager UIDs: {0}".format(session.list_unit_managers())
 
         # Add pilots to the unit manager.
         print "Adding pilots to Unit Manager..."
