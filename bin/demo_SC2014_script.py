@@ -649,7 +649,7 @@ if __name__ == "__main__":
                 print pdesc
 
         # Submit the pilots just described.
-        # pilots = pmgr.submit_pilots(pdescs)
+        pilots = pmgr.submit_pilots(pdescs)
 
         report.info("Pilots")
 
@@ -672,11 +672,11 @@ if __name__ == "__main__":
             session=session,
             scheduler=radical.pilot.SCHED_BACKFILLING)
 
-        print "Unit Manager initialized      : UIDs %s" % umgr.uid
+        print "Unit Manager initialized      : UID %s" % umgr.uid
 
         # Add pilots to the unit manager.
         print "Adding pilots to Unit Manager :"
-        #umgr.add_pilots(pilots)
+        umgr.add_pilots(pilots)
 
         for pdesc in pdescs:
             print "  Pilot on resource %s ADDED to UM %s" % \
@@ -713,7 +713,7 @@ if __name__ == "__main__":
         # terms of how and when will depend on that inference.
         stage_1_cuds = []
 
-        print("Tasks translated into CUs: "),
+        print("Tasks translated into CUs"),
 
         for task in skeleton.tasks:
             if task.stage().name == "Stage_1":
@@ -727,22 +727,22 @@ if __name__ == "__main__":
                 cud.output_staging = list()
 
                 for i in task.inputs:
-                    cud.input_staging.append('Stage_1_Input/' + i['name'])
+                    cud.input_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Input/' + i['name'])
 
                 for o in task.outputs:
-                    cud.output_staging.append('Stage_1_Output/' + o['name'])
+                    cud.output_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Output/' + o['name'])
 
                 cud.cleanup = True
 
                 stage_1_cuds.append(cud)
-                print("%s," % cud.name),
-                print "DEBUG: cud: %s" % cud
-
+                print(" : %s " % cud.name),
 
         # CUs descriptions Stage 2
-        report.info("CUs descriptions for Stage 2")
+        report.info("\nCUs descriptions for Stage 2")
 
-        print("Tasks translated into CUs: "),
+        stage_2_cuds = []
+
+        print("Tasks translated into CUs"),
 
         for task in skeleton.tasks:
             if task.stage().name == "Stage_2":
@@ -756,18 +756,15 @@ if __name__ == "__main__":
                 cud.output_staging = list()
 
                 for i in task.inputs:
-                    cud.input_staging.append('Stage_1_Output/' + i['name'])
+                    cud.input_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Output/' + i['name'])
 
                 for o in task.outputs:
-                    cud.output_staging.append('Stage_2_Output/' + o['name'])
+                    cud.output_staging.append('/home/mturilli/github/aimes.emanager/Stage_2_Output/' + o['name'])
 
                 cud.cleanup = True
 
-                stage_1_cuds.append(cud)
-                print("%s," % cud.name),
-                print "DEBUG: cud: %s" % cud
-
-        sys.exit()
+                stage_2_cuds.append(cud)
+                print(" : %s" % cud.name),
 
 
         # EXECUTION
@@ -775,16 +772,29 @@ if __name__ == "__main__":
         # Submit the previously created ComputeUnit descriptions to the
         # PilotManager. This will trigger the selected scheduler to
         # start assigning ComputeUnits to the ComputePilots.
-        print "Submit units to the Unit Manager..."
-        umgr.submit_units(cuds)
+        report.info("\nExecuting Stage 1")
+
+        umgr.submit_units(stage_1_cuds)
+
+        print "CUs of Stage 1 submitted to the Unit Manager: UID %s" % umgr.uid
 
         # Wait for all compute units to finish.
-        print "Wating for the execution of the CUs..."
         umgr.wait_units()
-        print "CU execution done."
+        print "Execution done."
 
+        # Execute Stage 2
+        report.info("Executing Stage 2")
 
-        # CLEAN UP AND SHUT DOWN ---------------------------------------
+        umgr.submit_units(stage_2_cuds)
+
+        print "CUs of Stage 2 submitted to the Unit Manager: UID %s" % umgr.uid
+
+        # Wait for all compute units to finish.
+        umgr.wait_units()
+        print "Execution done."
+
+        # CLEAN UP AND SHUT DOWN
+        #----------------------------------------------------------------------
         # Close the session so to shutdown all the pilots cleanly
         session.close(cleanup=False, terminate=True)
         sys.exit(0)
