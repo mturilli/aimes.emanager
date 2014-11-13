@@ -77,11 +77,6 @@ pd.set_option('display.width', 1000)
 # -----------------------------------------------------------------------------
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
 
-report.info ("executing skeleton setup")
-commands = skeleton.setup ()
-for cmd in commands :
-    report.ok (cmd)
-
 # Test skeleton API
 report.header("Skeleton Workflow S01")
 
@@ -89,8 +84,8 @@ report.info("Stages")
 print "Type of workflow       : pipeline"
 print "Total number of stages : %d" % len(skeleton.stages)
 print "Total number of tasks  : %d" % len(skeleton.tasks)
-print "Total input data       : 20.38MB"
-print "Total output data      : 1.38MB"
+print "Total input data       : 20.38 MB"
+print "Total output data      : 1.38 MB"
 
 report.info("Stage 1")
 
@@ -112,8 +107,12 @@ print "Type of tasks   : homogeneous"
 print "Input files     : 20 1MB input files for a single task"
 print "Output files    : 1 1MB output file for a single task"
 
-
 if EMANAGER_DEBUG:
+    report.info("Skeleton S01 setup")
+    commands = skeleton.setup()
+    for cmd in commands:
+        report.ok(cmd)
+
     for stage in skeleton.stages:
         report.info("stage.name       : %s" % stage.name)
         print "stage.tasks      : %s" % stage.tasks
@@ -211,22 +210,22 @@ for resource_name in bundle.resources:
 # Report back to the demo about the available resource bundle.
 report.info("Target Resources")
 print "IDs: %s" % \
-    [bundle.resources[resource].name for resource in bundle.resources ]
+    [bundle.resources[resource].name for resource in bundle.resources]
 
 # I could derive this but no point doing it for the demo.
 print "Total core capacity: 7168"
 print
 print "Acquiring real time-resource information:"
-print "  Number of nodes ............................. OK"
-print "  Type of container ........................... OK"
-print "  Bandwidth from origin to resource  .......... OK"
-print "  Bandwidth from resource to origin  .......... OK"
-print "  Queue names ................................. OK"
-print "  Queue max walltime .......................... OK"
-print "  Queue max number of jobs .................... OK"
-print "  Queue core capacity ......................... OK"
-print "  Queue available capacity .................... OK"
-print "  Queue length ................................ OK"
+print "  Number of nodes.............................. OK"
+print "  Type of container............................ OK"
+print "  Bandwidth from origin to resource............ OK"
+print "  Bandwidth from resource to origin............ OK"
+print "  Queue names.................................. OK"
+print "  Queue max walltime........................... OK"
+print "  Queue max number of jobs..................... OK"
+print "  Queue core capacity.......................... OK"
+print "  Queue available capacity..................... OK"
+print "  Queue length................................. OK"
 
 if EMANAGER_DEBUG:
     # Test bundle API
@@ -415,7 +414,6 @@ print "Decision D02 based on E03 - What is the resource priority?\n"
 print "%s \n" % resource_priority
 
 
-
 # CHOOSE RESOURCES
 #
 # Get the first n resources from the sorted list that, in case, use the
@@ -451,13 +449,13 @@ resource_avail = resource_priority['Name'].tolist()
 resources = list()
 
 while len(resources) < eur_resources_number and \
-    len(resources) < len(resource_avail):
+      len(resources) < len(resource_avail):
     resources.append(uri_to_tag(resource_avail[len(resources)]))
 
 print "Decision D03 based on D02, E02 - How many resource should be used?"
 
 for resource in resources:
-    print "  %s Selected" % resource.ljust(20, '.')
+    print "  %s Selected" % resource.ljust(24, '.')
 print
 
 # CHOOSE THE TYPE OF CONTAINER
@@ -477,8 +475,8 @@ print
 if len(resources) > 1:
     rp_scheduler = 'SCHED_BACKFILLING'
 
-print "Decision D05 based on D03, D04 - What pilot scheduler should be used? %s" % \
-    rp_scheduler
+print "Decision D05 based on D03, D04 - What pilot scheduler should be \
+used? %s" % rp_scheduler
 
 # WE CANNOT CHOOSE ABOUT:
 #
@@ -543,60 +541,72 @@ if __name__ == "__main__":
 
     report.header("Enacting Execution Strategy")
 
+    report.info("Resource overlay")
     # SESSION
-    print "Creating session..."
     session = radical.pilot.Session(database_url=DBURL)
+
+    print "Execution session created        : UID %s" % session.uid
+
     context = radical.pilot.Context('ssh')
     context.user_id = 'mturilli'
     session.add_context(context)
 
-    print "Session UID: {0}".format(session.uid)
+    print "Credentials for target resources : ***"
 
     try:
         # PILOT MANAGER
+        #----------------------------------------------------------------------
         # One pilot manager is used for all pilots.
-        print "Initializing Pilot Manager..."
         pmgr = radical.pilot.PilotManager(session=session)
 
-        print "Pilot Manager UID: {0}".format(pmgr.uid)
+        print "Pilot Manager Initialized        : UID %s" % pmgr.uid
 
         # Register the pilot callback with the pilot manager. Called
         # every time any of the pilots managed by the pilot manager
         # changes its state.
         pmgr.register_callback(pilot_state_cb)
 
-
         # PILOTS
-        # Number of cored for each pilot. NOTE: here there is space for
-        # optimizations/decisions. Do we assign n cores to each pilot with n =
-        # BAG_SIZE so that each single pilot can execute the whole bag with
-        # maximal concurrency? Do we maximize the number of resource asked
-        # BAG_SIZE/len(resources) cores for each pilot? We might have to
-        # collect data about each option.
-        print "Creating %i pilot descriptions..." % len(resources)
-
+        #----------------------------------------------------------------------
+        # Number of cored for each pilot.
         cores = math.ceil((stages_compute_limits['max']*eur_concurrency)/100.0)
-        print "DEBUG: number of cores to execute all the skeleton: %d" % cores
+
+        print "Total number of cores            : %d" % cores
 
         # TODO: derive overhead dynamically from stage_in time + agent
         # bootstrap + agent task queue management overheads
-        rp_overhead = 10
+        rp_overhead = 15
+
+        print "Total number of pilots           : %i" % len(resources)
+
+        report.info("Pilot descriptions")
 
         # List of all the pilot descriptions
         pdescs = []
 
         # Create a pilot description for each resource
         for resource in resources:
+
+            print "Resource          : %s" % resource
+
             pdesc = radical.pilot.ComputePilotDescription()
 
             if 'stampede' in resource:
                 pdesc.project = XSEDE_PROJECT_ID_STAMPEDE
+                print "Allocation        : %s" % pdesc.project
+
             elif 'trestles' in resource:
                 pdesc.project = XSEDE_PROJECT_ID_TRESTLES
+                print "Allocation        : %s" % pdesc.project
+
             elif 'gordon' in resource:
                 pdesc.project = XSEDE_PROJECT_ID_GORDON
+                print "Allocation        : %s" % pdesc.project
+
             elif 'blacklight' in resource:
                 pdesc.project = XSEDE_PROJECT_ID_BLACKLIGHT
+                print "Allocation        : %s" % pdesc.project
+
             else:
                 print "ERROR: No XSEDE_PROJECT_ID given for resource %s." % \
                     resource
@@ -609,6 +619,8 @@ if __name__ == "__main__":
             # into consideration properties of the resources that would justify
             # a bias distribution of the cores.
             pdesc.cores = math.ceil(float(cores/len(resources)))
+
+            print "Number of cores   : %s" % pdesc.cores
 
             # We assume enough runtime for each pilot to run all the tasks of
             # the skeleton. This covers the case in which one pilot comes
@@ -624,22 +636,60 @@ if __name__ == "__main__":
                              60.0) +
                              rp_overhead)
 
+            print "Walltime          : %s minutes" % pdesc.runtime
+
             pdesc.cleanup = True
+
+            print "Clean remote data : TRUE\n"
+
             pdescs.append(pdesc)
-            print "Pilot description for %s created with %i cores." % \
-                (resource, cores)
 
-        for pdesc in pdescs:
-            print pdesc
-
-        sys.exit()
+        if EMANAGER_DEBUG:
+            for pdesc in pdescs:
+                print pdesc
 
         # Submit the pilots just described.
-        print "Submit pilots..."
-        pilots = pmgr.submit_pilots(pdescs)
+        # pilots = pmgr.submit_pilots(pdescs)
+
+        report.info("Pilots")
+
+        for pdesc in pdescs:
+            print "Pilot on resource %s SUBMITTED to PM %s" % \
+                (pdesc.resource.ljust(21, '.'), pmgr.uid)
+
+
+        # UNIT MANAGERS
+        #----------------------------------------------------------------------
+        # Combine the ComputePilot, the ComputeUnits and a scheduler via
+        # a UnitManager object. One unit manager will be used for all
+        # the pilots. 'Late binding' scheduler is used to backfill (a
+        # type of load balance) compute units to pilots when they become
+        # available.
+        report.info("Compute Units")
+
+        #TODO: Get the name from the variable rp_scheduler
+        umgr = radical.pilot.UnitManager(
+            session=session,
+            scheduler=radical.pilot.SCHED_BACKFILLING)
+
+        print "Unit Manager initialized      : UIDs %s" % umgr.uid
+
+        # Add pilots to the unit manager.
+        print "Adding pilots to Unit Manager :"
+        #umgr.add_pilots(pilots)
+
+        for pdesc in pdescs:
+            print "  Pilot on resource %s ADDED to UM %s" % \
+                (pdesc.resource.ljust(21, '.'), umgr.uid)
+
+        # Register the compute unit callback with the UnitManager.
+        # Called every time any of the unit managed by the
+        # UnittManager changes its state.
+        umgr.register_callback(unit_state_change_cb)
+
 
         # WORKLOAD
-
+        #----------------------------------------------------------------------
         # EXECUTION PATTERN: two stages, sequential:
         # - Describe CU for stage 1.
         # - Describe CU for stage 2.
@@ -651,62 +701,77 @@ if __name__ == "__main__":
         # - Retrieve the output files.
 
         # CUs descriptions Stage 1
-        print ("Creating Compute Units Stage 1: "),
+        report.info("CUs descriptions for Stage 1")
+
+        # TOD: We leverage the knowledge we have of the skeleton - we as in
+        # coders. This is ad hoc and will have to be replaced by an automated
+        # understanding of the constraints on the execution of a specific type
+        # of workload. For example, the emanager will have to learn that the
+        # type of Skeleton (or applicaiton) is a pipeline and will have to
+        # infer by means of a knowledge base that a pipeline requires a
+        # sequential execution of all its stages. The creation of the CUs in
+        # terms of how and when will depend on that inference.
         stage_1_cuds = []
 
-        # for unit_count in range(0, BAG_SIZE):
-        #     # OUPUT - Configure the staging action for output files.
-        #     sd_outputs = {'source': ['state.cpt'   ,
-        #                              'confout.gro' ,
-        #                              'ener.edr'    ,
-        #                              'traj.trr'    ,
-        #                              'md.log'      ],
-        #                   'target': ['outputs/state-%d.cpt'   % unit_count,
-        #                              'outputs/confout-%d.gro' % unit_count,
-        #                              'outputs/ener-%d.edr'    % unit_count,
-        #                              'outputs/traj-%d.trr'    % unit_count,
-        #                              'outputs/md-%d.log'      % unit_count],
-        #                   'action':  radical.pilot.TRANSFER,
-        #                   'flags' :  radical.pilot.CREATE_PARENTS}
+        print("Tasks translated into CUs: "),
 
-        #     cud = radical.pilot.ComputeUnitDescription()
-        #     cud.kernel         = 'GROMACS'
-        #     cud.arguments      = ['-s', os.path.basename(SHARED_INPUT_FILE)]
-        #     cud.cores          = 1
-        #     cud.input_staging  = sd_shared
-        #     cud.output_staging = sd_outputs
+        for task in skeleton.tasks:
+            if task.stage().name == "Stage_1":
 
-        # We assume a skeleton where staging files are created
-        cud.input_staging = 'TODO'
-        cud.output_staging = 'TODO'
+                cud = radical.pilot.ComputeUnitDescription()
+                cud.name = task.name
+                cud.executable = "task"
+                cud.arguments = task.command.split()[1:]
+                cud.cores = 1
+                cud.input_staging = list()
+                cud.output_staging = list()
 
-        stage_1_cuds.append(cud)
-        print ('%i,' % unit_count),
+                for i in task.inputs:
+                    cud.input_staging.append('Stage_1_Input/' + i['name'])
 
-        # UNIT MANAGERS ------------------------------------------------
-        # Combine the ComputePilot, the ComputeUnits and a scheduler via
-        # a UnitManager object. One unit manager will be used for all
-        # the pilots. 'Late binding' scheduler is used to backfill (a
-        # type of load balance) conpute units to pilots when they become
-        # available.
-        print "\nInitializing Unit Manager..."
-        umgr = radical.pilot.UnitManager(
-            session=session,
-            scheduler=radical.pilot.rp_scheduler)
+                for o in task.outputs:
+                    cud.output_staging.append('Stage_1_Output/' + o['name'])
 
-        print "Unit Manager UIDs: {0}".format(session.list_unit_managers())
+                cud.cleanup = True
 
-        # Add pilots to the unit manager.
-        print "Adding pilots to Unit Manager..."
-        umgr.add_pilots(pilots)
-
-        # Register the compute unit callback with the UnitManager.
-        # Called every time any of the unit managed by the
-        # UnittManager changes its state.
-        umgr.register_callback(unit_state_change_cb)
+                stage_1_cuds.append(cud)
+                print("%s," % cud.name),
+                print "DEBUG: cud: %s" % cud
 
 
-        # EXECUTION ----------------------------------------------------
+        # CUs descriptions Stage 2
+        report.info("CUs descriptions for Stage 2")
+
+        print("Tasks translated into CUs: "),
+
+        for task in skeleton.tasks:
+            if task.stage().name == "Stage_2":
+
+                cud = radical.pilot.ComputeUnitDescription()
+                cud.name = task.name
+                cud.executable = "task"
+                cud.arguments = task.command.split()[1:]
+                cud.cores = 1
+                cud.input_staging = list()
+                cud.output_staging = list()
+
+                for i in task.inputs:
+                    cud.input_staging.append('Stage_1_Output/' + i['name'])
+
+                for o in task.outputs:
+                    cud.output_staging.append('Stage_2_Output/' + o['name'])
+
+                cud.cleanup = True
+
+                stage_1_cuds.append(cud)
+                print("%s," % cud.name),
+                print "DEBUG: cud: %s" % cud
+
+        sys.exit()
+
+
+        # EXECUTION
+        #----------------------------------------------------------------------
         # Submit the previously created ComputeUnit descriptions to the
         # PilotManager. This will trigger the selected scheduler to
         # start assigning ComputeUnits to the ComputePilots.
