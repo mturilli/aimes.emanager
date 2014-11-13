@@ -735,7 +735,7 @@ if __name__ == "__main__":
                 cud.cleanup = True
 
                 stage_1_cuds.append(cud)
-                print(" : %s " % cud.name),
+                print(": %s " % cud.name),
 
         # CUs descriptions Stage 2
         report.info("\nCUs descriptions for Stage 2")
@@ -764,8 +764,7 @@ if __name__ == "__main__":
                 cud.cleanup = True
 
                 stage_2_cuds.append(cud)
-                print(" : %s" % cud.name),
-
+                print(": %s" % cud.name),
 
         # EXECUTION
         #----------------------------------------------------------------------
