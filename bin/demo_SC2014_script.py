@@ -474,6 +474,8 @@ print
 # have a default scheduler? If so, an else is superfluous.
 if len(resources) > 1:
     rp_scheduler = 'SCHED_BACKFILLING'
+else :
+    rp_scheduler = 'SCHED_DIRECT_SUBMISSION'
 
 print "Decision D05 based on D03, D04 - What pilot scheduler should be \
 used? %s" % rp_scheduler
