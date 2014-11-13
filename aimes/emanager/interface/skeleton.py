@@ -69,9 +69,11 @@ for task in skeleton.tasks:
 """
 
 
-import aimes.skeleton
-import weakref
+import os
 import json
+import weakref
+
+import aimes.skeleton
 
 
 
@@ -95,11 +97,14 @@ class Skeleton(object) :
         self.name   = filename
         self.shell  = self._app.as_shell ()
         self._json  = self._app.as_json  ()
+        self._setup = self._app.getSetup ()
         self._priv  = json.loads (self._json)
 
       # import pprint
       # pprint.pprint (self.shell)
       # pprint.pprint (self._priv)
+      # pprint.pprint (self._setup)
+      # sys.exit (0)
 
         if self.name.endswith (".input"):
             self.name = self.name[:-6]
@@ -111,6 +116,26 @@ class Skeleton(object) :
         self.tasks = list()
         for stage in self.stages:
             self.tasks += stage.tasks
+
+
+    # --------------------------------------------------------------------------
+    #
+    def setup (self, verbose=False) :
+
+        for cmd in self._setup :
+
+            if verbose :
+                print "running setup command '%s'" % cmd
+
+            if verbose :
+                os.system (cmd)
+
+            else:
+                import subprocess
+                with open (os.devnull, 'wb') as devnull :
+                    subprocess.check_call(['/bin/sh', '-c', cmd], stdout=devnull, stderr=devnull)
+
+        return self._setup
 
 
     # --------------------------------------------------------------------------

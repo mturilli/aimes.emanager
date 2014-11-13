@@ -80,8 +80,8 @@ class Bundle(object):
             workload   = self._priv['cluster_workload'][resource_name]
             bandwidths = self._priv['cluster_bandwidths'][resource_name]
 
-            import pprint
-            pprint.pprint (bandwidths)
+            # import pprint
+            # pprint.pprint (bandwidths)
 
             self.resources[resource_name] = Resource (resource_name, config, workload, bandwidths)
 

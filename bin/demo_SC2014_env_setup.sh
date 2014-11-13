@@ -14,6 +14,7 @@ export RADICAL_PILOT_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:
 export RADICAL_PILOT_BENCHMARK=
 export SAGA_VERBOSE=debug            # To be unset for the demo
 export RADICAL_PILOT_VERBOSE=debug   # To be unset for the demo
+#export EMANAGER_DEBUG
 
 # Set up eManager execution environment
 export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
