@@ -120,14 +120,22 @@ class Skeleton(object) :
 
     # --------------------------------------------------------------------------
     #
-    def setup (self) :
+    def setup (self, verbose=False) :
 
         for cmd in self._setup :
 
-            print "running setup command '%s'" % cmd
-            os.system (cmd)
+            if verbose :
+                print "running setup command '%s'" % cmd
 
+            if verbose :
+                os.system (cmd)
 
+            else:
+                import subprocess
+                with open (os.devnull, 'wb') as devnull :
+                    subprocess.check_call(['/bin/sh', '-c', cmd], stdout=devnull, stderr=devnull)
+
+        return self._setup
 
 
     # --------------------------------------------------------------------------

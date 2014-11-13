@@ -76,7 +76,11 @@ pd.set_option('display.width', 1000)
 # skeleton
 # -----------------------------------------------------------------------------
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
-skeleton.setup ()
+
+report.info ("executing skeleton setup")
+commands = skeleton.setup ()
+for cmd in commands :
+    report.ok (cmd)
 
 # Test skeleton API
 report.header("Skeleton Workflow S01")
