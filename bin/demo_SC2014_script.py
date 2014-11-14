@@ -16,7 +16,7 @@ import pandas as pd
 
 import radical.utils as ru
 
-import radical.pilot
+import radical.pilot as rp
 import aimes.bundle
 import aimes.emanager
 import aimes.emanager.interface
@@ -489,47 +489,25 @@ used? %s" % rp_scheduler
 #------------------------------------------------------------------------------
 # Callbacks
 # -----------------------------------------------------------------------------
-def pilot_state_cb(p, state):
-    """Called very time a ComputePilot changes its state.
+def pilot_state_cb(pilot, state):
+    """Called every time a ComputePilot changes its state.
     """
 
-    if state == radical.pilot.states.FAILED:
-        print "Compute Pilot '%s' failed, exiting..." % p.uid
-        sys.exit(1)
-
-    elif state == radical.pilot.states.CANCELED:
-        print "Compute Pilot '%s' canceled..." % p.uid
-
-    elif state == radical.pilot.states.ACTIVE:
-        print "Compute Pilot '%s' became active..." % p.uid
-
-    elif state == radical.pilot.states.DONE:
-        print "Compute Pilot '%s' has done!" % p.uid
+    print "[Callback]: ComputePilot '%s' state: %s." % (pilot.uid, state)
 
 
 def unit_state_change_cb(unit, state):
     """unit_state_change_cb() is a callback function. It gets called
     very time a ComputeUnit changes its state.
     """
-    if state == radical.pilot.states.FAILED:
-        print "Compute Unit '%s' failed..." % unit.uid
 
-    elif state == radical.pilot.states.CANCELED:
-        print "Compute Unit '%s' canceled..." % unit.uid
+    print "[Callback]: ComputeUnit '%s' state: %s." % (unit.uid, state)
 
-    elif state == radical.pilot.states.EXECUTING:
-        print "Compute Unit '%s' executing..." % unit.uid
-
-    elif state == radical.pilot.states.DONE:
-        print "Compute Unit '%s' finished with output:" % unit.uid
+    if state == rp.FAILED:
+        sys.exit(1)
 
 
 def wait_queue_size_cb(umgr, wait_queue_size):
-    """Called when the size of the unit managers wait_queue changes.
-    """
-    print "[Callback]: UnitManager '%s' wait_queue_size changed to %s." \
-        % (umgr.uid, wait_queue_size)
-
     """Called when the size of the unit managers wait_queue changes.
     """
     print "[Callback]: UnitManager '%s' wait_queue_size changed to %s." \
@@ -544,12 +522,14 @@ if __name__ == "__main__":
     report.header("Enacting Execution Strategy")
 
     report.info("Resource overlay")
+
     # SESSION
-    session = radical.pilot.Session(database_url=DBURL)
+    #--------------------------------------------------------------------------
+    session = rp.Session(database_url=DBURL)
 
     print "Execution session created        : UID %s" % session.uid
 
-    context = radical.pilot.Context('ssh')
+    context = rp.Context('ssh')
     context.user_id = 'mturilli'
     session.add_context(context)
 
@@ -559,7 +539,7 @@ if __name__ == "__main__":
         # PILOT MANAGER
         #----------------------------------------------------------------------
         # One pilot manager is used for all pilots.
-        pmgr = radical.pilot.PilotManager(session=session)
+        pmgr = rp.PilotManager(session=session)
 
         print "Pilot Manager Initialized        : UID %s" % pmgr.uid
 
@@ -568,7 +548,7 @@ if __name__ == "__main__":
         # changes its state.
         pmgr.register_callback(pilot_state_cb)
 
-        # PILOTS
+        # PILOT DESCRIPTIONS
         #----------------------------------------------------------------------
         # Number of cored for each pilot.
         cores = math.ceil((stages_compute_limits['max']*eur_concurrency)/100.0)
@@ -591,7 +571,7 @@ if __name__ == "__main__":
 
             print "Resource          : %s" % resource
 
-            pdesc = radical.pilot.ComputePilotDescription()
+            pdesc = rp.ComputePilotDescription()
 
             if 'stampede' in resource:
                 pdesc.project = XSEDE_PROJECT_ID_STAMPEDE
@@ -650,45 +630,6 @@ if __name__ == "__main__":
             for pdesc in pdescs:
                 print pdesc
 
-        # Submit the pilots just described.
-        pilots = pmgr.submit_pilots(pdescs)
-
-        report.info("Pilots")
-
-        for pdesc in pdescs:
-            print "Pilot on resource %s SUBMITTED to PM %s" % \
-                (pdesc.resource.ljust(21, '.'), pmgr.uid)
-
-
-        # UNIT MANAGERS
-        #----------------------------------------------------------------------
-        # Combine the ComputePilot, the ComputeUnits and a scheduler via
-        # a UnitManager object. One unit manager will be used for all
-        # the pilots. 'Late binding' scheduler is used to backfill (a
-        # type of load balance) compute units to pilots when they become
-        # available.
-        report.info("Compute Units")
-
-        #TODO: Get the name from the variable rp_scheduler
-        umgr = radical.pilot.UnitManager(
-            session=session,
-            scheduler=radical.pilot.SCHED_BACKFILLING)
-
-        print "Unit Manager initialized      : UID %s" % umgr.uid
-
-        # Add pilots to the unit manager.
-        print "Adding pilots to Unit Manager :"
-        umgr.add_pilots(pilots)
-
-        for pdesc in pdescs:
-            print "  Pilot on resource %s ADDED to UM %s" % \
-                (pdesc.resource.ljust(21, '.'), umgr.uid)
-
-        # Register the compute unit callback with the UnitManager.
-        # Called every time any of the unit managed by the
-        # UnittManager changes its state.
-        umgr.register_callback(unit_state_change_cb)
-
 
         # WORKLOAD
         #----------------------------------------------------------------------
@@ -720,7 +661,7 @@ if __name__ == "__main__":
         for task in skeleton.tasks:
             if task.stage().name == "Stage_1":
 
-                cud = radical.pilot.ComputeUnitDescription()
+                cud = rp.ComputeUnitDescription()
                 cud.name = task.name
                 cud.executable = "task"
                 cud.arguments = task.command.split()[1:]
@@ -729,10 +670,18 @@ if __name__ == "__main__":
                 cud.output_staging = list()
 
                 for i in task.inputs:
-                    cud.input_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Input/' + i['name'])
+                    cud.input_staging.append({
+                        'source': '/home/mturilli/github/aimes.emanager/Stage_1_Input/' + i['name'],
+                        'target': 'Stage_1_Input/' + i['name'],
+                        'flags' : rp.CREATE_PARENTS
+                        })
 
                 for o in task.outputs:
-                    cud.output_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Output/' + o['name'])
+                    cud.output_staging.append({
+                        'source': 'Stage_1_Output/' + o['name'],
+                        'target': 'Stage_1_Output/' + o['name'],
+                        'flags' : rp.CREATE_PARENTS
+                        })
 
                 cud.cleanup = True
 
@@ -749,7 +698,7 @@ if __name__ == "__main__":
         for task in skeleton.tasks:
             if task.stage().name == "Stage_2":
 
-                cud = radical.pilot.ComputeUnitDescription()
+                cud = rp.ComputeUnitDescription()
                 cud.name = task.name
                 cud.executable = "task"
                 cud.arguments = task.command.split()[1:]
@@ -758,15 +707,64 @@ if __name__ == "__main__":
                 cud.output_staging = list()
 
                 for i in task.inputs:
-                    cud.input_staging.append('/home/mturilli/github/aimes.emanager/Stage_1_Output/' + i['name'])
+                    cud.input_staging.append({
+                        'source': '/home/mturilli/github/aimes.emanager/Stage_1_Output/' + i['name'],
+                        'target': 'Stage_1_Output/' + i['name'],
+                        'flags' : rp.CREATE_PARENTS
+                        })
 
                 for o in task.outputs:
-                    cud.output_staging.append('/home/mturilli/github/aimes.emanager/Stage_2_Output/' + o['name'])
+                    cud.output_staging.append({
+                        'source': 'Stage_2_Output/' + o['name'],
+                        'target': 'Stage_2_Output/' + o['name'],
+                        'flags' : rp.CREATE_PARENTS
+                        })
 
                 cud.cleanup = True
 
                 stage_2_cuds.append(cud)
                 print(": %s" % cud.name),
+
+
+        # PILOT SUBMISSIONS
+        #----------------------------------------------------------------------
+        # Submit the pilots just described.
+        pilots = pmgr.submit_pilots(pdescs)
+
+        report.info("Pilots")
+
+        for pdesc in pdescs:
+            print "Pilot on resource %s SUBMITTED to PM %s" % \
+                (pdesc.resource.ljust(21, '.'), pmgr.uid)
+
+        # UNIT MANAGERS
+        #----------------------------------------------------------------------
+        # Combine the ComputePilot, the ComputeUnits and a scheduler via
+        # a UnitManager object. One unit manager will be used for all
+        # the pilots. 'Late binding' scheduler is used to backfill (a
+        # type of load balance) compute units to pilots when they become
+        # available.
+        report.info("Compute Units")
+
+        #TODO: Get the name from the variable rp_scheduler
+        umgr = rp.UnitManager(
+            session=session,
+            scheduler=rp.SCHED_BACKFILLING)
+
+        print "Unit Manager initialized      : UID %s" % umgr.uid
+
+        # Add pilots to the unit manager.
+        print "Adding pilots to Unit Manager :"
+        umgr.add_pilots(pilots)
+
+        for pdesc in pdescs:
+            print "  Pilot on resource %s ADDED to UM %s" % \
+                (pdesc.resource.ljust(21, '.'), umgr.uid)
+
+        # Register the compute unit callback with the UnitManager.
+        # Called every time any of the unit managed by the
+        # UnittManager changes its state.
+        umgr.register_callback(unit_state_change_cb)
 
         # EXECUTION
         #----------------------------------------------------------------------
