@@ -89,23 +89,21 @@ print "Total output data      : 1.38 MB"
 
 report.info("Stage 1")
 
-for stage in skeleton.stages:
-    print "Number of tasks : %d" % len(skeleton.stages[0].tasks)
+print "Number of tasks : %d" % len(skeleton.stages[0].tasks)
 
 # I could derive this but no point doing it for the demo
 print "Type of tasks   : homogeneous"
-print "Input files     : 1 1MB input file for each task"
-print "Output files    : 1 20KB output file for each task"
+print "Input files     : 1 1 MB input file for each task"
+print "Output files    : 1 20 KB output file for each task"
 
 report.info("Stage 2")
 
-for stage in skeleton.stages:
-    print "Number of tasks : %d" % len(skeleton.stages[1].tasks)
+print "Number of tasks : %d" % len(skeleton.stages[1].tasks)
 
 # I could derive this but no point doing it for the demo
 print "Type of tasks   : homogeneous"
-print "Input files     : 20 1MB input files for a single task"
-print "Output files    : 1 1MB output file for a single task"
+print "Input files     : 20 1 MB input files for a single task"
+print "Output files    : 1 1 MB output file for a single task"
 
 if EMANAGER_DEBUG:
     report.info("Skeleton S01 setup")
@@ -269,27 +267,18 @@ if EMANAGER_DEBUG:
 stages_compute_limits = dict()
 stages_time_limits = dict()
 
-stages_compute_limits['min'] = 0
+stages_compute_limits['min'] = 1
 stages_compute_limits['max'] = 0
 stages_time_limits['min'] = 0
 stages_time_limits['max'] = 0
 
-for stage in skeleton.stages:
-    max_task_duration = 0
-    total_tasks_duration = 0
+for task in skeleton.tasks:
+    stages_compute_limits['max'] += task.cores
+    stages_time_limits['max'] += task.length
 
-    stages_compute_limits['min'] += 1
-
-    for task in skeleton.tasks:
-        stages_compute_limits['max'] += task.cores
-        total_tasks_duration += task.length
-
-        # We assume tasks with heterogeneous runtime.
-        if task.length > max_task_duration:
-            max_task_duration = task.length
-
-    stages_time_limits['min'] += max_task_duration
-    stages_time_limits['max'] += total_tasks_duration
+    # We assume tasks with heterogeneous runtime.
+    if stages_time_limits['min'] < task.length:
+        stages_time_limits['min'] = task.length
 
 report.header("Execution Strategy")
 
@@ -298,9 +287,9 @@ print "G01 - Minimize time to completion (MinTTC)"
 
 report.info("Derive execution boundaries for S01")
 print "B01 - lowest number of cores  : %s" % stages_compute_limits['min']
+print "      longest execution time  : %s seconds" % stages_time_limits['max']
 print "B02 - highest number of cores : %s" % stages_compute_limits['max']
-print "B03 - shortest execution time : %s minutes" % stages_time_limits['min']
-print "B04 - longest execution time  : %s minutes" % stages_time_limits['max']
+print "      shortest execution time : %s seconds" % stages_time_limits['min']
 
 
 #------------------------------------------------------------------------------
@@ -493,15 +482,18 @@ def pilot_state_cb(pilot, state):
     """Called every time a ComputePilot changes its state.
     """
 
-    print "[Callback]: ComputePilot '%s' state: %s." % (pilot.uid, state)
+    print "\033[1mPilot\033[0m %s is %s on resource %s" % \
+        (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
 
 
-def unit_state_change_cb(unit, state):
+def unit_state_change_cb(cu, state):
     """unit_state_change_cb() is a callback function. It gets called
     very time a ComputeUnit changes its state.
     """
 
-    print "[Callback]: ComputeUnit '%s' state: %s." % (unit.uid, state)
+    # print "\033[1mCU\033[0m %s is %s on pilot %s" % \
+    #     (cu.uid, state.ljust(15), cu.pilot_id)
+    print "\033[1mCU\033[0m %s is %s" % (cu.uid, state)
 
     if state == rp.FAILED:
         sys.exit(1)
@@ -510,8 +502,8 @@ def unit_state_change_cb(unit, state):
 def wait_queue_size_cb(umgr, wait_queue_size):
     """Called when the size of the unit managers wait_queue changes.
     """
-    print "[Callback]: UnitManager '%s' wait_queue_size changed to %s." \
-        % (umgr.uid, wait_queue_size)
+    print "\033[1mUnitManager\033[0m '%s' is %s" % \
+        (umgr.uid, wait_queue_size)
 
 
 # -----------------------------------------------------------------------------
@@ -673,14 +665,14 @@ if __name__ == "__main__":
                     cud.input_staging.append({
                         'source': '/home/mturilli/github/aimes.emanager/Stage_1_Input/' + i['name'],
                         'target': 'Stage_1_Input/' + i['name'],
-                        'flags' : rp.CREATE_PARENTS
+                        'flags': rp.CREATE_PARENTS
                         })
 
                 for o in task.outputs:
                     cud.output_staging.append({
                         'source': 'Stage_1_Output/' + o['name'],
                         'target': 'Stage_1_Output/' + o['name'],
-                        'flags' : rp.CREATE_PARENTS
+                        'flags': rp.CREATE_PARENTS
                         })
 
                 cud.cleanup = True
@@ -710,14 +702,14 @@ if __name__ == "__main__":
                     cud.input_staging.append({
                         'source': '/home/mturilli/github/aimes.emanager/Stage_1_Output/' + i['name'],
                         'target': 'Stage_1_Output/' + i['name'],
-                        'flags' : rp.CREATE_PARENTS
+                        'flags': rp.CREATE_PARENTS
                         })
 
                 for o in task.outputs:
                     cud.output_staging.append({
                         'source': 'Stage_2_Output/' + o['name'],
                         'target': 'Stage_2_Output/' + o['name'],
-                        'flags' : rp.CREATE_PARENTS
+                        'flags': rp.CREATE_PARENTS
                         })
 
                 cud.cleanup = True
@@ -729,13 +721,14 @@ if __name__ == "__main__":
         # PILOT SUBMISSIONS
         #----------------------------------------------------------------------
         # Submit the pilots just described.
-        pilots = pmgr.submit_pilots(pdescs)
-
-        report.info("Pilots")
+        report.info("\nPilot submissions")
 
         for pdesc in pdescs:
             print "Pilot on resource %s SUBMITTED to PM %s" % \
                 (pdesc.resource.ljust(21, '.'), pmgr.uid)
+        print
+
+        pilots = pmgr.submit_pilots(pdescs)
 
         # UNIT MANAGERS
         #----------------------------------------------------------------------
@@ -790,13 +783,15 @@ if __name__ == "__main__":
 
         # Wait for all compute units to finish.
         umgr.wait_units()
-        print "Execution done."
+        report.ok("\nExecution done.")
 
         # CLEAN UP AND SHUT DOWN
         #----------------------------------------------------------------------
         # Close the session so to shutdown all the pilots cleanly
+        report.header("Shutting down resource overlay")
+
         session.close(cleanup=False, terminate=True)
-        sys.exit(0)
+        #sys.exit(0)
 
     except Exception as e:
         # this catches all RP and system exceptions
@@ -811,5 +806,5 @@ if __name__ == "__main__":
 
     finally:
         # always clean up the session, no matter whether we caught an exception
-        print 'session cleanup on exit'
+        report.header("End of AIMES SC2014 demo.")
         session.close(cleanup=False, terminate=True)
