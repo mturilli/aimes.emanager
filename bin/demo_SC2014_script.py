@@ -34,7 +34,7 @@ if DEMO_FOLDER is None:
     sys.exit(1)
 else:
     if EMANAGER_DEBUG:
-        print "DEBUG - Demo root directory: %s" % DBURL
+        print "DEBUG - Demo root directory: %s" % DEMO_FOLDER
 
 DBURL = os.getenv("RADICAL_PILOT_DBURL")
 if DBURL is None:
