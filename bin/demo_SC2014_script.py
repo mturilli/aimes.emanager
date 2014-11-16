@@ -463,7 +463,7 @@ print
 # have a default scheduler? If so, an else is superfluous.
 if len(resources) > 1:
     rp_scheduler = 'SCHED_BACKFILLING'
-else :
+else:
     rp_scheduler = 'SCHED_DIRECT_SUBMISSION'
 
 print "Decision D05 based on D03, D04 - What pilot scheduler should be \
@@ -482,18 +482,21 @@ def pilot_state_cb(pilot, state):
     """Called every time a ComputePilot changes its state.
     """
 
-    print "\033[1mPilot\033[0m %s is %s on resource %s" % \
+    print "\033[92mPilot %s is %s on %s\033[0m" % \
         (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
 
 
-def unit_state_change_cb(cu, state):
+def unit_state_change_cb(cu, state, pilots):
     """unit_state_change_cb() is a callback function. It gets called
     very time a ComputeUnit changes its state.
     """
 
-    # print "\033[1mCU\033[0m %s is %s on pilot %s" % \
-    #     (cu.uid, state.ljust(15), cu.pilot_id)
-    print "\033[1mCU\033[0m %s is %s" % (cu.uid, state)
+    print "\033[1mCU %s\033[0m (UID %s) is %s on %s (pilot UID %s)" % \
+        (cu.name.ljust(11),
+         cu.uid, state.ljust(20),
+         pilots[cu.pilot_id].resource.ljust(17),
+         cu.pilot_id)
+    #print "\033[1mCU\033[0m %s is %s" % (cu.uid, state)
 
     if state == rp.FAILED:
         sys.exit(1)
@@ -621,7 +624,6 @@ if __name__ == "__main__":
         if EMANAGER_DEBUG:
             for pdesc in pdescs:
                 print pdesc
-
 
         # WORKLOAD
         #----------------------------------------------------------------------
@@ -765,10 +767,10 @@ if __name__ == "__main__":
         # PilotManager. This will trigger the selected scheduler to
         # start assigning ComputeUnits to the ComputePilots.
         report.info("\nExecuting Stage 1")
+        print "CUs of Stage 1 submitted to the Unit Manager: UID %s\n" % \
+            umgr.uid
 
         umgr.submit_units(stage_1_cuds)
-
-        print "CUs of Stage 1 submitted to the Unit Manager: UID %s" % umgr.uid
 
         # Wait for all compute units to finish.
         umgr.wait_units()
@@ -776,10 +778,10 @@ if __name__ == "__main__":
 
         # Execute Stage 2
         report.info("Executing Stage 2")
+        print "CUs of Stage 2 submitted to the Unit Manager: UID %s\n" % \
+            umgr.uid
 
         umgr.submit_units(stage_2_cuds)
-
-        print "CUs of Stage 2 submitted to the Unit Manager: UID %s" % umgr.uid
 
         # Wait for all compute units to finish.
         umgr.wait_units()
