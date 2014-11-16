@@ -682,7 +682,7 @@ if __name__ == "__main__":
 
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': DEMO_FOLDER + '/' + i['name'],
+                        'source': DEMO_FOLDER + '/Stage_1_Input/' + i['name'],
                         'target': 'Stage_1_Input/' + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
@@ -719,7 +719,7 @@ if __name__ == "__main__":
 
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': DEMO_FOLDER + '/' + i['name'],
+                        'source': DEMO_FOLDER + '/Stage_1_Output/' + i['name'],
                         'target': 'Stage_1_Output/' + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
