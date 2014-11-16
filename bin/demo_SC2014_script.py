@@ -759,7 +759,7 @@ if __name__ == "__main__":
         # Register the compute unit callback with the UnitManager.
         # Called every time any of the unit managed by the
         # UnittManager changes its state.
-        umgr.register_callback(unit_state_change_cb)
+        umgr.register_callback(unit_state_change_cb, pilots)
 
         # EXECUTION
         #----------------------------------------------------------------------
