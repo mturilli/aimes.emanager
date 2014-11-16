@@ -491,10 +491,16 @@ def unit_state_change_cb(cu, state, pilots):
     very time a ComputeUnit changes its state.
     """
 
+    resource = 'Unknown'
+    for pilot in pilots :
+        if pilot.uid == cu.pilot_id :
+            resource = pilot.resource
+            break
+
     print "\033[1mCU %s\033[0m (UID %s) is %s on %s (pilot UID %s)" % \
         (cu.name.ljust(11),
          cu.uid, state.ljust(20),
-         pilots[cu.pilot_id].resource.ljust(17),
+         resource,
          cu.pilot_id)
     #print "\033[1mCU\033[0m %s is %s" % (cu.uid, state)
 
@@ -759,7 +765,7 @@ if __name__ == "__main__":
         # Register the compute unit callback with the UnitManager.
         # Called every time any of the unit managed by the
         # UnittManager changes its state.
-        umgr.register_callback(unit_state_change_cb)
+        umgr.register_callback(unit_state_change_cb, callback_data=pilots)
 
         # EXECUTION
         #----------------------------------------------------------------------
