@@ -14,6 +14,10 @@ export RADICAL_PILOT_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:
 export RADICAL_PILOT_BENCHMARK=
 export SAGA_VERBOSE=debug            # To be unset for the demo
 export RADICAL_PILOT_VERBOSE=debug   # To be unset for the demo
+export RADICAL_UTILS_VERBOSE=debug
+export RADICAL_PILOT_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
+export SAGA_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
+export RADICAL_UTILS_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
 #export EMANAGER_DEBUG
 
 # Set up eManager execution environment

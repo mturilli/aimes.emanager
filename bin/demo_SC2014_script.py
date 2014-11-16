@@ -34,7 +34,7 @@ if DEMO_FOLDER is None:
     sys.exit(1)
 else:
     if EMANAGER_DEBUG:
-        print "DEBUG - Demo root directory: %s" % DBURL
+        print "DEBUG - Demo root directory: %s" % DEMO_FOLDER
 
 DBURL = os.getenv("RADICAL_PILOT_DBURL")
 if DBURL is None:
@@ -113,9 +113,10 @@ print "Type of tasks   : homogeneous"
 print "Input files     : 20 1 MB input files for a single task"
 print "Output files    : 1 1 MB output file for a single task"
 
+#report.info("Skeleton S01 setup")
+commands = skeleton.setup()
+
 if EMANAGER_DEBUG:
-    report.info("Skeleton S01 setup")
-    commands = skeleton.setup()
     for cmd in commands:
         report.ok(cmd)
 
