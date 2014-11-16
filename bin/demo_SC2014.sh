@@ -3,7 +3,7 @@
 #
 # . demo_SC2014.sh
 
-. bin/demo_SC2014_env_setup.sh
+. `which demo_SC2014_env_setup.sh`
 
 cat > description.log <<EOL
 AIMES SC2014 Demo
