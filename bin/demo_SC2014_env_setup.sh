@@ -17,6 +17,8 @@ export RADICAL_PILOT_VERBOSE=debug   # To be unset for the demo
 #export EMANAGER_DEBUG
 
 # Set up eManager execution environment
+export DEMO_FOLDER='/home/mturilli/AIMES_demo_SC2014/Stage_1_Output'
+
 export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
 export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 export ORIGIN='54.196.51.239'

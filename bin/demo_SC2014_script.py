@@ -28,6 +28,14 @@ import aimes.emanager.interface
 # variables.
 EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG")
 
+DEMO_FOLDER = os.getenv("DEMO_FOLDER")
+if DEMO_FOLDER is None:
+    print "ERROR: DEMO_FOLDER is not defined."
+    sys.exit(1)
+else:
+    if EMANAGER_DEBUG:
+        print "DEBUG - Demo root directory: %s" % DBURL
+
 DBURL = os.getenv("RADICAL_PILOT_DBURL")
 if DBURL is None:
     print "ERROR: RADICAL_PILOT_DBURL (MongoDB server URL) is not defined."
@@ -126,7 +134,6 @@ if EMANAGER_DEBUG:
         # Derive stage staged-in data
         print "sum(task.cores for task in stage.tasks) : %s" % \
             sum(task.cores for task in stage.tasks)
-
 
     for task in skeleton.tasks:
         report.info("task.name        : %s" % task.name)
@@ -492,12 +499,12 @@ def unit_state_change_cb(cu, state, pilots):
     """
 
     resource = 'Unknown'
-    for pilot in pilots :
-        if pilot.uid == cu.pilot_id :
+    for pilot in pilots:
+        if pilot.uid == cu.pilot_id:
             resource = pilot.resource
             break
 
-    print "\033[1mCU %s\033[0m (UID %s) is %s on %s (pilot UID %s)" % \
+    print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
         (cu.name.ljust(11),
          cu.uid, state.ljust(20),
          resource,
@@ -671,7 +678,7 @@ if __name__ == "__main__":
 
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': '/home/mturilli/github/aimes.emanager/Stage_1_Input/' + i['name'],
+                        'source': DEMO_FOLDER + '/' + i['name'],
                         'target': 'Stage_1_Input/' + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
@@ -708,7 +715,7 @@ if __name__ == "__main__":
 
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': '/home/mturilli/github/aimes.emanager/Stage_1_Output/' + i['name'],
+                        'source': DEMO_FOLDER + '/' + i['name'],
                         'target': 'Stage_1_Output/' + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
@@ -724,7 +731,6 @@ if __name__ == "__main__":
 
                 stage_2_cuds.append(cud)
                 print(": %s" % cud.name),
-
 
         # PILOT SUBMISSIONS
         #----------------------------------------------------------------------
