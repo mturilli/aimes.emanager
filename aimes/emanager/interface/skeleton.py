@@ -96,8 +96,8 @@ class Skeleton(object) :
 
         self.name   = filename
         self.shell  = self._app.as_shell ()
-        self._json  = self._app.as_json  ()
         self._setup = self._app.getSetup ()
+        self._json  = self._app.as_json  ()
         self._priv  = json.loads (self._json)
 
       # import pprint
