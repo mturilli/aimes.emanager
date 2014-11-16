@@ -113,13 +113,13 @@ print "Type of tasks   : homogeneous"
 print "Input files     : 20 1 MB input files for a single task"
 print "Output files    : 1 1 MB output file for a single task"
 
-report.info("Skeleton S01 setup")
-commands = skeleton.setup()
-
-for cmd in commands:
-    print cmd
-
 if EMANAGER_DEBUG:
+    report.info("Skeleton S01 setup")
+    commands = skeleton.setup()
+
+    for cmd in commands:
+        print cmd
+
     for stage in skeleton.stages:
         report.info("stage.name       : %s" % stage.name)
         print "stage.tasks      : %s" % stage.tasks
@@ -156,6 +156,9 @@ if EMANAGER_DEBUG:
         for o in task.outputs:
             print "    o['name']      : %s" % o['name']
             print "    o['size']      : %s" % o['size']
+
+else:
+    skeleton.setup()
 
 
 # -----------------------------------------------------------------------------
