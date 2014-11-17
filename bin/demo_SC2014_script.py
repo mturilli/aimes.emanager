@@ -637,16 +637,16 @@ if __name__ == "__main__":
         # TODO: derive overhead dynamically from stage_in time + agent
         # bootstrap + agent task queue management overheads. This would
         # required robust stats about the available bandwidth.
-        if len(skeleton.tasks) <= 20:
+        if len(skeleton.tasks) <= 21:
             rp_overhead = 15
 
-        elif len(skeleton.tasks) > 20 and len(skeleton.tasks) <= 2048:
+        elif len(skeleton.tasks) > 21 and len(skeleton.tasks) <= 2049:
             rp_overhead = 45
 
-        elif len(skeleton.tasks) > 2048 and len(skeleton.tasks) <= 3072:
+        elif len(skeleton.tasks) > 2049 and len(skeleton.tasks) <= 3073:
             rp_overhead = 135
 
-        elif len(skeleton.tasks) > 3072 and len(skeleton.tasks) <= 4096:
+        elif len(skeleton.tasks) > 3073 and len(skeleton.tasks) <= 4096:
             rp_overhead = 405
 
         print "Total number of pilots           : %i" % len(resources)
