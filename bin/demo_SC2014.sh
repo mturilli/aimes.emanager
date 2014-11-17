@@ -29,7 +29,7 @@ else
 fi
 
 SESSION_UID=`grep 'created        : UID' out.log | cut -d ' ' -f 13`
-radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out
+radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
 
 tar cfj out.log.bz2 out.log
 cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[Experiment] $WORKLOAD_BAG_SIZE tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
