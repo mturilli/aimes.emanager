@@ -41,7 +41,7 @@ DBURL: ${RADICAL_PILOT_DBURL}
 
 EOL
 
-cat stats_2048.out | sed -e '1,/plotting.../d' >> description.log
+cat stats.out | sed -e '1,/plotting.../d' >> description.log
 
 # Send the e-mail with the information, stats, diagram of the run.
 cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[Experiment] $WORKLOAD_BAG_SIZE tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
