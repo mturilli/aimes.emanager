@@ -92,13 +92,13 @@ total_input_data = 0
 
 for task in skeleton.tasks:
     for i in task.inputs:
-        total_input_data += int(i['size'])
+        total_input_data += float(i['size'])
 
 total_output_data = 0
 
 for task in skeleton.tasks:
     for o in task.outputs:
-        total_output_data += int(o['size'])
+        total_output_data += float(o['size'])
 
 report.info("Stages")
 print "Type of workflow       : pipeline"
@@ -106,10 +106,10 @@ print "Total number of stages : %d" % len(skeleton.stages)
 print "Total number of tasks  : %d" % len(skeleton.tasks)
 
 print "Total input data       : %d MB" % \
-    round(((total_input_data/1024.0)/1024.0),2)
+    round(((total_input_data/1024.0)/1024.0), 2)
 
 print "Total output data      : %d MB" % \
-    round(((total_output_data/104.0)/1024.0),2)
+    round(((total_output_data/104.0)/1024.0), 2)
 
 for stage in skeleton.stages:
 
@@ -159,7 +159,7 @@ for stage in skeleton.stages:
     for task in skeleton.tasks:
         if task.stage().name == stage.name:
             for i in task.inputs:
-                stage_input_data += int(i['size'])
+                stage_input_data += float(i['size'])
                 stage_input_files += 1
 
     stage_output_data = 0
@@ -168,16 +168,16 @@ for stage in skeleton.stages:
     for task in skeleton.tasks:
         if task.stage().name == stage.name:
             for o in task.outputs:
-                stage_output_data += int(o['size'])
+                stage_output_data += float(o['size'])
                 stage_output_files += 1
 
     print "Input files     : %d for a total of %d MB" % \
-        (stage_input_files, round(((stage_input_data/1024.0)/1024.0),2))
+        (stage_input_files, round(((stage_input_data/1024.0)/1024.0), 2))
 
     print "Output files    : %d for a total of %d MB" % \
-        (stage_output_files, round(((stage_output_data/1024.0)/1024.0),2))
+        (stage_output_files, round(((stage_output_data/1024.0)/1024.0), 2))
 
-# eManager DEBUG
+# Skeleton API DEBUG
 #------------------------------------------------------------------------------
 if EMANAGER_DEBUG:
     report.info("Skeleton S01 setup")
