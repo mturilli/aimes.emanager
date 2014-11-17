@@ -172,10 +172,10 @@ for stage in skeleton.stages:
                 stage_output_files += 1
 
     print "Input files     : %d for a total of %d MB" % \
-        (stage_input_files, round(((stage_input_data/1024)/1024),2))
+        (stage_input_files, round(((stage_input_data/1024.0)/1024.0),2))
 
     print "Output files    : %d for a total of %d MB" % \
-        (stage_output_files, round(((stage_output_data/1024)/1024),2))
+        (stage_output_files, round(((stage_output_data/1024.0)/1024.0),2))
 
 # eManager DEBUG
 #------------------------------------------------------------------------------
