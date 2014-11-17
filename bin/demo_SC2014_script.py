@@ -502,14 +502,14 @@ def unit_state_change_cb(cu, state, pilots):
     very time a ComputeUnit changes its state.
     """
 
-    resource = 'Unknown'
-    for pilot in pilots:
-        if pilot.uid == cu.pilot_id:
-            resource = pilot.resource
-            break
+    # resource = 'Unknown'
+    # for pilot in pilots:
+    #     if pilot.uid == cu.pilot_id:
+    #         resource = pilot.resource
+    #         break
 
     print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
-        (cu.name.ljust(11),
+        (cu.name.ljust(12),
          cu.uid, state.ljust(20),
          resource,
          cu.pilot_id)
