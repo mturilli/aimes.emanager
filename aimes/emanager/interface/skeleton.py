@@ -131,9 +131,8 @@ class Skeleton(object) :
                 os.system (cmd)
 
             else:
-                import subprocess
-                with open (os.devnull, 'wb') as devnull :
-                    subprocess.check_call(['/bin/sh', '-c', cmd], stdout=devnull, stderr=devnull)
+                import os
+                os.system ("/bin/sh -c '%s' 1>/dev/null 2>/dev/null" % cmd)
 
         return self._setup
 
