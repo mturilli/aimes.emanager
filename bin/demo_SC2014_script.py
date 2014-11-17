@@ -637,13 +637,13 @@ if __name__ == "__main__":
         if len(skeleton.tasks) <= 20:
             rp_overhead = 15
 
-        elif len(skeleton.tasks) <= 2048:
+        elif len(skeleton.tasks) > 20 and len(skeleton.tasks) <= 2048:
             rp_overhead = 45
 
-        elif len(skeleton.tasks) <= 3072:
+        elif len(skeleton.tasks) > 2048 and len(skeleton.tasks) <= 3072:
             rp_overhead = 60
 
-        elif len(skeleton.tasks) <= 4096:
+        elif len(skeleton.tasks) > 3072 and len(skeleton.tasks) <= 4096:
             rp_overhead = 75
 
         print "Total number of pilots           : %i" % len(resources)
