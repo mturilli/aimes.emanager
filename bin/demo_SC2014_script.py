@@ -104,8 +104,12 @@ report.info("Stages")
 print "Type of workflow       : pipeline"
 print "Total number of stages : %d" % len(skeleton.stages)
 print "Total number of tasks  : %d" % len(skeleton.tasks)
-print "Total input data       : %d MB" % ((total_input_data/1024)/1024)
-print "Total output data      : %d MB" % ((total_output_data/104)/1024)
+
+print "Total input data       : %d MB" % \
+    round(((total_input_data/1024.0)/1024.0),2)
+
+print "Total output data      : %d MB" % \
+    round(((total_output_data/104.0)/1024.0),2)
 
 for stage in skeleton.stages:
 
@@ -134,7 +138,6 @@ for stage in skeleton.stages:
 
         elif t_length and t_length != task.length:
             task_time_type = 'heterogeneous'
-
 
     if task_space_type == 'homogeneous' and task_time_type == 'homogeneous':
         print "Type of tasks   : space and time homogeneous"
@@ -169,10 +172,10 @@ for stage in skeleton.stages:
                 stage_output_files += 1
 
     print "Input files     : %d for a total of %d MB" % \
-        (stage_input_files, (stage_input_data/1024)/1024)
+        (stage_input_files, round(((stage_input_data/1024)/1024),2))
 
     print "Output files    : %d for a total of %d MB" % \
-        (stage_output_files, (stage_output_data/1024)/1024)
+        (stage_output_files, round(((stage_output_data/1024)/1024),2))
 
 # eManager DEBUG
 #------------------------------------------------------------------------------
