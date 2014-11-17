@@ -502,6 +502,7 @@ def unit_state_change_cb(cu, state, pilots):
     very time a ComputeUnit changes its state.
     """
 
+<<<<<<< HEAD
     resource = None
     pilot_id = None
     for pilot in pilots:
@@ -511,22 +512,20 @@ def unit_state_change_cb(cu, state, pilots):
 
     if not resource :
         print "\033[1mCU %s\033[0m (unit-%s) is %s" % \
-            (cu.name.ljust(11), cu.uid, state.ljust(20))
+            (cu.name.ljust(12), cu.uid, state.ljust(20))
 
     elif not pilot_id :
         print "\033[1mCU %s\033[0m (unit-%s) is %s on %s" % \
-            (cu.name.ljust(11),
+            (cu.name.ljust(12),
              cu.uid, state.ljust(20),
              resource)
 
     else :
         print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
-            (cu.name.ljust(11),
+            (cu.name.ljust(12),
              cu.uid, state.ljust(20),
              resource,
              cu.pilot_id)
-
-    #print "\033[1mCU\033[0m %s is %s" % (cu.uid, state)
 
     if state == rp.FAILED:
         sys.exit(1)
