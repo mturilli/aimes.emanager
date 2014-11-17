@@ -3,8 +3,28 @@
 #
 # . demo_SC2014.sh
 
+# Load the environment variables required when running the demo.
 . `which demo_SC2014_env_setup.sh`
 
+# Direct to STDOUT and to the file out.log.
+which unbuffer > /dev/null
+if test $? = 0; then
+  unbuffer demo_SC2014_script.py 2>&1 | tee out.log
+else
+  demo_SC2014_script.py 2>&1 | tee out.log
+fi
+
+# Get some information from the logs.
+SESSION_UID=`grep 'created        : UID' out.log | cut -d ' ' -f 13`
+RADICAL_PILOT_RESOURCES=`grep 'IDs: ' out.log | cut -d ':' -f 2 | sed 's/^ \(.*\)/\1/'`
+
+# Produce diagrams and statistics for the run.
+radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
+
+# Archive the logs.
+tar cfj out.log.bz2 out.log
+
+# Write the body of the e-mail.
 cat > description.log <<EOL
 AIMES SC2014 Demo
 
@@ -21,15 +41,7 @@ DBURL: ${RADICAL_PILOT_DBURL}
 
 EOL
 
-which unbuffer > /dev/null
-if test $? = 0; then
-  unbuffer demo_SC2014_script.py 2>&1 | tee out.log
-else
-  demo_SC2014_script.py 2>&1 | tee out.log
-fi
+cat stats_2048.out | sed -e '1,/plotting.../d' >> description.log
 
-SESSION_UID=`grep 'created        : UID' out.log | cut -d ' ' -f 13`
-radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
-
-tar cfj out.log.bz2 out.log
+# Send the e-mail with the information, stats, diagram of the run.
 cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[Experiment] $WORKLOAD_BAG_SIZE tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
