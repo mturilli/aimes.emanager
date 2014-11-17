@@ -85,34 +85,97 @@ pd.set_option('display.width', 1000)
 # -----------------------------------------------------------------------------
 skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
 
-# Test skeleton API
 report.header("Skeleton Workflow S01")
+
+# Calculate total data size of the given workflow.
+total_input_data = 0
+
+for task in skeleton.tasks:
+    for i in task.inputs:
+        total_input_data += int(i['size'])
+
+total_output_data = 0
+
+for task in skeleton.tasks:
+    for o in task.outputs:
+        total_output_data += int(o['size'])
 
 report.info("Stages")
 print "Type of workflow       : pipeline"
 print "Total number of stages : %d" % len(skeleton.stages)
 print "Total number of tasks  : %d" % len(skeleton.tasks)
-print "Total input data       : 20.38 MB"
-print "Total output data      : 1.38 MB"
+print "Total input data       : %d MB" % ((total_input_data/1024)/1024)
+print "Total output data      : %d MB" % ((total_output_data/104)/1024)
 
-report.info("Stage 1")
+for stage in skeleton.stages:
 
-print "Number of tasks : %d" % len(skeleton.stages[0].tasks)
+    report.info("%s" % stage.name)
 
-# I could derive this but no point doing it for the demo
-print "Type of tasks   : homogeneous"
-print "Input files     : 1 1 MB input file for each task"
-print "Output files    : 1 20 KB output file for each task"
+    print "Number of tasks : %d" % len(stage.tasks)
 
-report.info("Stage 2")
+    # Define the space and type homogeneity or heterogeneity of the tasks of
+    # this stage.
+    task_space_type = 'homogeneous'
+    task_time_type = 'homogeneous'
 
-print "Number of tasks : %d" % len(skeleton.stages[1].tasks)
+    t_cores = None
+    t_length = None
 
-# I could derive this but no point doing it for the demo
-print "Type of tasks   : homogeneous"
-print "Input files     : 20 1 MB input files for a single task"
-print "Output files    : 1 1 MB output file for a single task"
+    for task in stage.tasks:
 
+        if not t_cores:
+            t_cores == task.cores
+
+        elif t_cores and t_cores != task.cores:
+            task_space_type = 'heterogeneous'
+
+        elif not t_length:
+            t_length = task.length
+
+        elif t_length and t_length != task.length:
+            task_time_type = 'heterogeneous'
+
+
+    if task_space_type == 'homogeneous' and task_time_type == 'homogeneous':
+        print "Type of tasks   : space and time homogeneous"
+
+    elif task_space_type == 'heterogeneous' and task_time_type == 'heterogeneous':
+        print "Type of tasks   : space and time heterogeneous"
+
+    elif task_space_type == 'heterogeneous' and task_time_type == 'homogeneous':
+        print "Type of tasks   : space heterogeneous; time homogeneous"
+
+    elif task_space_type == 'homogeneous' and task_time_type == 'heterogeneous':
+        print "Type of tasks   : space homogeneous; time heterogeneous"
+
+    # Find out how many input/output files and how much space they require for
+    # this stage.
+    stage_input_data = 0
+    stage_input_files = 0
+
+    for task in skeleton.tasks:
+        if task.stage().name == stage.name:
+            for i in task.inputs:
+                stage_input_data += int(i['size'])
+                stage_input_files += 1
+
+    stage_output_data = 0
+    stage_output_files = 0
+
+    for task in skeleton.tasks:
+        if task.stage().name == stage.name:
+            for o in task.outputs:
+                stage_output_data += int(o['size'])
+                stage_output_files += 1
+
+    print "Input files     : %d for a total of %d MB" % \
+        (stage_input_files, (stage_input_data/1024)/1024)
+
+    print "Output files    : %d for a total of %d MB" % \
+        (stage_output_files, (stage_output_data/1024)/1024)
+
+# eManager DEBUG
+#------------------------------------------------------------------------------
 if EMANAGER_DEBUG:
     report.info("Skeleton S01 setup")
     commands = skeleton.setup()
@@ -127,14 +190,6 @@ if EMANAGER_DEBUG:
 
         # Derive stage size
         print "len(stage.tasks) : %s" % len(stage.tasks)
-
-        # Derive stage duration
-        print "sum(task.length for task in stage.tasks): %s" % \
-            sum(task.length for task in stage.tasks)
-
-        # Derive stage staged-in data
-        print "sum(task.cores for task in stage.tasks) : %s" % \
-            sum(task.cores for task in stage.tasks)
 
     for task in skeleton.tasks:
         report.info("task.name        : %s" % task.name)
@@ -205,7 +260,6 @@ else:
     if EMANAGER_DEBUG:
         print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
-
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
 bandwidth_out = dict()
@@ -266,7 +320,6 @@ if EMANAGER_DEBUG:
             print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
             print "  queue.num_running_jobs : %s" % queue.num_running_jobs
 
-# sys.exit()
 
 #------------------------------------------------------------------------------
 # Execution Boundaries
@@ -308,7 +361,7 @@ print "      shortest execution time : %s seconds" % stages_time_limits['min']
 # -----------------------------------------------------------------------------
 
 # DEFINE EURISTICS
-report.info("Derive heuristics to satisfy G01 for the workflow S01")
+report.info("Select heuristics to satisfy G01 for the workflow S01")
 
 # Degree of concurrency. Question: what amount of concurrent execution
 # minimizes TTC?
@@ -579,8 +632,19 @@ if __name__ == "__main__":
         print "Total number of cores            : %d" % cores
 
         # TODO: derive overhead dynamically from stage_in time + agent
-        # bootstrap + agent task queue management overheads
-        rp_overhead = 15
+        # bootstrap + agent task queue management overheads. This would
+        # required robust stats about the available bandwidth.
+        if len(skeleton.tasks) <= 20:
+            rp_overhead = 15
+
+        elif len(skeleton.tasks) <= 2048:
+            rp_overhead = 45
+
+        elif len(skeleton.tasks) <= 3072:
+            rp_overhead = 60
+
+        elif len(skeleton.tasks) <= 4096:
+            rp_overhead = 75
 
         print "Total number of pilots           : %i" % len(resources)
 
