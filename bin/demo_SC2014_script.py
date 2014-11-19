@@ -549,8 +549,9 @@ def pilot_state_cb(pilot, state):
     """Called every time a ComputePilot changes its state.
     """
 
-    print "\033[92mPilot %s is %s on %s\033[0m" % \
-        (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
+    if pilot:
+        print "\033[92mPilot %s is %s on %s\033[0m" % \
+            (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
 
 
 def unit_state_change_cb(cu, state, pilots):
