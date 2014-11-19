@@ -428,19 +428,19 @@ for label in colums_labels:
 
         elif label == 'Queue num_cores':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
                     data[label].append(resource.queues[queue].num_procs_limit)
                     break
 
         elif label == 'Queue length':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
                     data[label].append(resource.queues[queue].num_queueing_jobs)
                     break
 
         elif label == 'Load':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default':
+                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
                     total = resource.queues[queue].alive_nodes
                     busy = float(resource.queues[queue].busy_nodes)
                     data[label].append((busy*100)/total)
@@ -495,6 +495,9 @@ def uri_to_tag(resource):
 
     elif resource == 'trestles.sdsc.xsede.org':
         tag = 'xsede.trestles'
+
+    elif resource == 'hopper.nersc.gov':
+        tag = 'nersc.hopper'
 
     else:
         sys.exit("Unknown resource specified in bundle: %s" % resource)
@@ -680,12 +683,21 @@ if __name__ == "__main__":
                 pdesc.project = XSEDE_PROJECT_ID_BLACKLIGHT
                 print "Allocation        : %s" % pdesc.project
 
+            elif 'hopper' in resource:
+                print "Allocation        : Default"
+
             else:
                 print "ERROR: No XSEDE_PROJECT_ID given for resource %s." % \
                     resource
                 sys.exit(1)
 
             pdesc.resource = resource  # label
+
+            # Select a specific queue for hopper. This will become another
+            # decision point inferred from queue information and inferred
+            # duration of the workflow.
+            if 'hopper' in pdesc.resource:
+                pdesc.queue = 'regular'
 
             # We assume a uniform distribution of the total amount of cores
             # across all the available pilots. Future optimizations may take
