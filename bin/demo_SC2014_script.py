@@ -566,7 +566,7 @@ def unit_state_change_cb(cu, state, pilots):
     pilot_id = None
 
     for pilot in pilots:
-        if pilot:
+        if cu:
             if pilot.uid == cu.pilot_id:
                 resource = pilot.resource
                 break
