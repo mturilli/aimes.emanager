@@ -564,10 +564,12 @@ def unit_state_change_cb(cu, state, pilots):
 
     resource = None
     pilot_id = None
+
     for pilot in pilots:
-        if pilot.uid == cu.pilot_id:
-            resource = pilot.resource
-            break
+        if pilot:
+            if pilot.uid == cu.pilot_id:
+                resource = pilot.resource
+                break
 
     if not resource:
         print "\033[1mCU %s\033[0m (unit-%s) is %s" % \
