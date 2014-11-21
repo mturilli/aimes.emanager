@@ -14,7 +14,6 @@ import os
 import radical.utils as ru
 
 import aimes.bundle
-import aimes.emanager.interface
 
 # Set environment directories to test the bundle API.
 CONF = os.getenv("BUNDLE_CONF")
@@ -23,7 +22,7 @@ ORIGIN = os.getenv("BUNDLE_ORIGIN")
 # Create a reporter for the demo. Takes care of colors and font attributes.
 report = ru.Reporter(title='Bundle API test')
 
-bundle = aimes.emanager.interface.Bundle(CONF, ORIGIN)
+bundle = aimes.bundle.Bundle(CONF, ORIGIN)
 
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
@@ -70,3 +69,4 @@ for resource_name in bundle.resources:
         print "  queue.free_procs       : %s" % queue.free_procs
         print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
         print "  queue.num_running_jobs : %s" % queue.num_running_jobs
+

@@ -18,10 +18,11 @@ export RADICAL_UTILS_VERBOSE=debug
 export RADICAL_PILOT_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
 export SAGA_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
 export RADICAL_UTILS_LOG_TARGETS=/tmp/aimes_demo_sc2014_debug.log
-#export EMANAGER_DEBUG
+export EMANAGER_DEBUG
 
 # Set up eManager execution environment
 export DEMO_FOLDER=/home/mturilli/AIMES_demo_SC2014
+export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
 
 export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
 export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
