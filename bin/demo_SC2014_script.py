@@ -15,11 +15,11 @@ import math
 import pandas as pd
 
 import radical.utils as ru
-
 import radical.pilot as rp
+
 import aimes.bundle
 import aimes.emanager
-import aimes.emanager.interface
+import aimes.skeleton
 
 # -----------------------------------------------------------------------------
 # Configuration
@@ -83,7 +83,7 @@ pd.set_option('display.width', 1000)
 # -----------------------------------------------------------------------------
 # skeleton
 # -----------------------------------------------------------------------------
-skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
+skeleton = aimes.skeleton.Skeleton(SKELETON_CONF)
 
 report.header("Skeleton Workflow S01")
 
@@ -224,7 +224,7 @@ else:
 # -----------------------------------------------------------------------------
 report.header("Resource Bundle B01")
 
-bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+bundle = aimes.bundle.Bundle(BUNDLE_CONF, ORIGIN)
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
@@ -273,14 +273,27 @@ for resource_name in bundle.resources:
     bandwidth_in[resource.name] = resource.get_bandwidth(ORIGIN, 'in')
     bandwidth_out[resource.name] = resource.get_bandwidth(ORIGIN, 'out')
 
+# Get the total core capacity offered by the default queues of the target
+# resources.
+total_core_capacity = 0
+
+for resource_name in bundle.resources:
+        resource = bundle.resources[resource_name]
+
+        for queue_name in resource.queues:
+            queue = resource.queues[queue_name]
+
+            if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
+                total_core_capacity += queue.num_procs_limit
+
 # Report back to the demo about the available resource bundle.
 report.info("Target Resources")
 print "IDs: %s" % \
     [bundle.resources[resource].name for resource in bundle.resources]
+print "Total core capacity: %i" % total_core_capacity
+print
 
 # I could derive this but no point doing it for the demo.
-print "Total core capacity: 7168"
-print
 print "Acquiring real time-resource information:"
 print "  Number of nodes.............................. OK"
 print "  Type of container............................ OK"
@@ -293,6 +306,8 @@ print "  Queue core capacity.......................... OK"
 print "  Queue available capacity..................... OK"
 print "  Queue length................................. OK"
 
+# Bundle API DEBUG
+#------------------------------------------------------------------------------
 if EMANAGER_DEBUG:
     # Test bundle API
     for resource_name in bundle.resources:
