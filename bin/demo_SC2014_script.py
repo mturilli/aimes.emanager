@@ -84,6 +84,7 @@ pd.set_option('display.width', 1000)
 # skeleton
 # -----------------------------------------------------------------------------
 skeleton = aimes.skeleton.Skeleton(SKELETON_CONF)
+skeleton.generate (mode='shell')
 
 report.header("Skeleton Workflow S01")
 
@@ -224,7 +225,9 @@ else:
 # -----------------------------------------------------------------------------
 report.header("Resource Bundle B01")
 
-bundle = aimes.bundle.Bundle(BUNDLE_CONF, ORIGIN)
+bundle = aimes.bundle.Bundle(query_mode=aimes.bundle.DB_QUERY,
+                             mongodb_url=DBURL,
+                             origin=ORIGIN)
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
