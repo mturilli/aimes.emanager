@@ -25,7 +25,7 @@ export DEMO_FOLDER=/home/mturilli/AIMES_demo_SC2014
 export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
 
 export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
-export BUNDLE_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/bundle_v0_1/'
+export BUNDLE_DBURL='mongodb://localhost/bundle_v0_1/'
 export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 export ORIGIN='54.196.51.239'
 
