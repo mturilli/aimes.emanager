@@ -70,7 +70,16 @@ if ORIGIN is None:
     sys.exit(1)
 else:
     if EMANAGER_DEBUG:
-        print "DEBUG - IP address: %s" % BUNDLE_CONF
+        print "DEBUG - IP address: %s" % ORIGIN
+
+BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
+if BUNDLE_DBURL is None:
+    print "ERROR: BUNDLE_DBURL not defined."
+    sys.exit(1)
+else:
+    if EMANAGER_DEBUG:
+        print "DEBUG - IP address: %s" % BUNDLE_DBURL
+
 
 # -----------------------------------------------------------------------------
 # Reporter
@@ -225,9 +234,9 @@ else:
 # -----------------------------------------------------------------------------
 report.header("Resource Bundle B01")
 
-bundle = aimes.bundle.Bundle(query_mode=aimes.bundle.DB_QUERY,
-                             mongodb_url=DBURL,
-                             origin=ORIGIN)
+bundle = aimes.bundle.Bundle (query_mode=aimes.bundle.DB_QUERY, 
+                              mongodb_url=BUNDLE_DBURL, 
+                              origin=ORIGIN)
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")

@@ -16,15 +16,16 @@ import radical.utils as ru
 import aimes.bundle
 
 # Set environment directories to test the bundle API.
-ORIGIN = os.getenv("BUNDLE_ORIGIN")
-DBURL = os.getenv("BUNDLE_DBURL")
+ORIGIN       = os.getenv("BUNDLE_ORIGIN")
+BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
 
 # Create a reporter for the demo. Takes care of colors and font attributes.
 report = ru.Reporter(title='Bundle API test')
 
-bundle = aimes.bundle.Bundle(query_mode=aimes.bundle.DB_QUERY,
-                             mongodb_url=DBURL,
-                             origin=ORIGIN)
+bundle = aimes.bundle.Bundle (query_mode=aimes.bundle.DB_QUERY, 
+                              mongodb_url=BUNDLE_DBURL, 
+                              origin=ORIGIN)
+
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
 bandwidth_out = dict()
