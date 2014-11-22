@@ -505,25 +505,25 @@ def uri_to_tag(resource):
 
     tag = ''
 
-    if resource == 'blacklight.psc.xsede.org':
+    if resource == 'blacklight_psc_xsede_org':
         tag = 'xsede.blacklight'
 
-    elif resource == 'gordon.sdsc.xsede.org':
+    elif resource == 'gordon_sdsc_xsede_org':
         tag = 'xsede.gordon'
 
-    elif resource == 'stampede.tacc.utexas.edu':
+    elif resource == 'stampede_tacc_utexas_edu':
         tag = 'xsede.stampede'
 
-    elif resource == 'stampede.tacc.xsede.org':
+    elif resource == 'stampede_tacc_xsede_org':
         tag = 'xsede.stampede'
 
-    elif resource == 'stampede.xsede.org':
+    elif resource == 'stampede_xsede_org':
         tag = 'xsede.stampede'
 
-    elif resource == 'trestles.sdsc.xsede.org':
+    elif resource == 'trestles_sdsc_xsede_org':
         tag = 'xsede.trestles'
 
-    elif resource == 'hopper.nersc.gov':
+    elif resource == 'hopper_nersc_gov':
         tag = 'nersc.hopper'
 
     else:
