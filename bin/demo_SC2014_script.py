@@ -70,7 +70,16 @@ if ORIGIN is None:
     sys.exit(1)
 else:
     if EMANAGER_DEBUG:
-        print "DEBUG - IP address: %s" % BUNDLE_CONF
+        print "DEBUG - IP address: %s" % ORIGIN
+
+BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
+if BUNDLE_DBURL is None:
+    print "ERROR: BUNDLE_DBURL not defined."
+    sys.exit(1)
+else:
+    if EMANAGER_DEBUG:
+        print "DEBUG - IP address: %s" % BUNDLE_DBURL
+
 
 # -----------------------------------------------------------------------------
 # Reporter
@@ -83,7 +92,8 @@ pd.set_option('display.width', 1000)
 # -----------------------------------------------------------------------------
 # skeleton
 # -----------------------------------------------------------------------------
-skeleton = aimes.emanager.interface.Skeleton(SKELETON_CONF)
+skeleton = aimes.skeleton.Skeleton(SKELETON_CONF)
+skeleton.generate (mode='shell')
 
 report.header("Skeleton Workflow S01")
 
@@ -224,7 +234,9 @@ else:
 # -----------------------------------------------------------------------------
 report.header("Resource Bundle B01")
 
-bundle = aimes.emanager.interface.Bundle(BUNDLE_CONF, ORIGIN)
+bundle = aimes.bundle.Bundle (query_mode=aimes.bundle.DB_QUERY, 
+                              mongodb_url=BUNDLE_DBURL, 
+                              origin=ORIGIN)
 
 # Set allocation for each given resource
 XSEDE_PROJECT_ID_STAMPEDE = os.getenv("XSEDE_PROJECT_ID_STAMPEDE")
