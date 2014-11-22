@@ -16,7 +16,6 @@ import radical.utils as ru
 import aimes.bundle
 
 # Set environment directories to test the bundle API.
-CONF         = os.getenv("BUNDLE_CONF")
 ORIGIN       = os.getenv("BUNDLE_ORIGIN")
 BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
 
