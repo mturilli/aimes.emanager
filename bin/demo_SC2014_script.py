@@ -532,6 +532,7 @@ def uri_to_tag(resource):
     return tag
 
 resource_avail = resource_priority['Name'].tolist()
+
 resources = list()
 
 while len(resources) < eur_resources_number and \
