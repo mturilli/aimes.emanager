@@ -641,9 +641,13 @@ if __name__ == "__main__":
 
     print "Execution session created        : UID %s" % session.uid
 
-    context = rp.Context('ssh')
-    context.user_id = 'mturilli'
-    session.add_context(context)
+    aimes_uid=os.environ.get ('AIMES_USER_ID', None)
+    if aimes_uid == 'merzky' :
+        print 'hi Andre, again!'
+    else :
+        context = rp.Context('ssh')
+        context.user_id = 'mturilli'
+        session.add_context(context)
 
     print "Credentials for target resources : ***"
 
