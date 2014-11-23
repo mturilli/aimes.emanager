@@ -71,4 +71,3 @@ for resource_name in bundle.resources:
         print "  queue.free_procs       : %s" % queue.free_procs
         print "  queue.num_queueing_jobs: %s" % queue.num_queueing_jobs
         print "  queue.num_running_jobs : %s" % queue.num_running_jobs
-

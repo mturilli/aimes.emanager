@@ -12,7 +12,7 @@ import os
 import sys
 import subprocess as sp
 
-from setuptools import setup, find_packages, Command
+from setuptools import setup, Command
 
 name     = 'aimes.emanager'
 mod_root = ''
@@ -144,8 +144,7 @@ setup_args = {
         'Operating System :: Unix'
     ],
     'packages'           : [
-        'aimes.emanager',
-        'aimes.emanager.interface'
+        'aimes.emanager'
     ],
     'scripts'            : [
         'bin/demo_SC2014.sh',
