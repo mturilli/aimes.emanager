@@ -503,8 +503,6 @@ print "%s \n" % resource_priority
 # required container.
 def uri_to_tag(resource):
 
-    resource = resource.replace ('_', '.')
-
     tag = ''
 
     if resource == 'blacklight_psc_xsede_org':
