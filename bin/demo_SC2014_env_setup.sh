@@ -22,7 +22,6 @@ export EMANAGER_DEBUG
 
 # Set up eManager execution environment
 export DEMO_FOLDER=/home/mturilli/AIMES_demo_SC2014
-export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
 
 export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
 export BUNDLE_DBURL='mongodb://localhost/bundle_v0_1/'
@@ -33,3 +32,13 @@ export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
 export XSEDE_PROJECT_ID_TRESTLES='unc102'
 export XSEDE_PROJECT_ID_GORDON='unc102'
 export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
+
+
+username=`id -un`
+if test "$username" = "merzky"
+then
+    echo "hi Andre"
+    export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
+    export AIMES_USER_ID=merzky
+fi
+
