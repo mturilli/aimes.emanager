@@ -818,6 +818,7 @@ if __name__ == "__main__":
                         'flags': rp.CREATE_PARENTS
                         })
 
+                cud.restartable = True
                 cud.cleanup = True
 
                 stage_1_cuds.append(cud)
@@ -855,6 +856,7 @@ if __name__ == "__main__":
                         'flags': rp.CREATE_PARENTS
                         })
 
+                cud.restartable = True
                 cud.cleanup = True
 
                 stage_2_cuds.append(cud)
