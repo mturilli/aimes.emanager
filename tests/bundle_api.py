@@ -2,7 +2,7 @@
 
 # pylint: disable-msg=C0103
 
-"""Implements an Execution Manager for the AIMES demo.
+"""Test the bundles API.
 """
 
 __author__ = "Matteo Turilli, Andre Merzky"
@@ -10,21 +10,19 @@ __copyright__ = "Copyright 2014, RADICAL"
 __license__ = "MIT"
 
 import os
-
 import radical.utils as ru
-
 import aimes.bundle
 
-# Set environment directories to test the bundle API.
-ORIGIN       = os.getenv("BUNDLE_ORIGIN")
+# Set environment variables.
+ORIGIN = os.getenv("BUNDLE_ORIGIN")
 BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
 
-# Create a reporter for the demo. Takes care of colors and font attributes.
+# Create a reporter for the test. Takes care of colors and font attributes.
 report = ru.Reporter(title='Bundle API test')
 
-bundle = aimes.bundle.Bundle (query_mode=aimes.bundle.DB_QUERY, 
-                              mongodb_url=BUNDLE_DBURL, 
-                              origin=ORIGIN)
+bundle = aimes.bundle.Bundle(query_mode=aimes.bundle.DB_QUERY,
+                             mongodb_url=BUNDLE_DBURL,
+                             origin=ORIGIN)
 
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
