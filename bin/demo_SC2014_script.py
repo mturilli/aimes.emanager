@@ -98,13 +98,17 @@ skeleton.generate(mode='shell')
 report.header("Skeleton Workflow S01")
 
 # Calculate total data size of the given workflow.
-total_input_data = 0
+total_input_data = 0.0
+max_input_data = 0.0
+average_input_data = 0.0
 
 for task in skeleton.tasks:
     for i in task.inputs:
         total_input_data += float(i['size'])
 
-total_output_data = 0
+total_output_data = 0.0
+max_output_data = 0.0
+average_output_data = 0.0
 
 for task in skeleton.tasks:
     for o in task.outputs:
@@ -114,12 +118,8 @@ report.info("Stages")
 print "Type of workflow       : pipeline"
 print "Total number of stages : %d" % len(skeleton.stages)
 print "Total number of tasks  : %d" % len(skeleton.tasks)
-
-print "Total input data       : %d MB" % \
-    round(((total_input_data/1024.0)/1024.0), 2)
-
-print "Total output data      : %d MB" % \
-    round(((total_output_data/104.0)/1024.0), 2)
+print "Total input data       : %.2f MB" % float((total_input_data/1024)/1024)
+print "Total output data      : %.2f MB" % float((total_output_data/1024)/1024)
 
 for stage in skeleton.stages:
 
@@ -181,11 +181,11 @@ for stage in skeleton.stages:
                 stage_output_data += float(o['size'])
                 stage_output_files += 1
 
-    print "Input files     : %d for a total of %d MB" % \
-        (stage_input_files, round(((stage_input_data/1024.0)/1024.0), 2))
+    print "Input files     : %d for a total of %.2f MB" % \
+        (stage_input_files, float((stage_input_data/1024.0)/1024.0))
 
-    print "Output files    : %d for a total of %d MB" % \
-        (stage_output_files, round(((stage_output_data/1024.0)/1024.0), 2))
+    print "Output files    : %d for a total of %.2f MB" % \
+        (stage_output_files, float((stage_output_data/1024.0)/1024.0))
 
 # Skeleton API DEBUG
 #------------------------------------------------------------------------------
@@ -360,19 +360,25 @@ if EMANAGER_DEBUG:
 
 stages_compute_limits = dict()
 stages_time_limits = dict()
+task_compute_limits = dict()
+task_time_limits = dict()
 
-stages_compute_limits['min'] = 1
 stages_compute_limits['max'] = 0
-stages_time_limits['min'] = 0
 stages_time_limits['max'] = 0
+task_compute_limits['min'] = 0
+task_time_limits['min'] = 0
 
 for task in skeleton.tasks:
     stages_compute_limits['max'] += task.cores
     stages_time_limits['max'] += task.length
 
+    # We assume tasks with heterogeneous core requirements.
+    if task_compute_limits['min'] < task.cores:
+        task_compute_limits['min'] = task.cores
+
     # We assume tasks with heterogeneous runtime.
-    if stages_time_limits['min'] < task.length:
-        stages_time_limits['min'] = task.length
+    if task_time_limits['min'] < task.length:
+        task_time_limits['min'] = task.length
 
 report.header("Execution Strategy")
 
@@ -380,10 +386,10 @@ report.info("Goal for the execution of S01")
 print "G01 - Minimize time to completion (MinTTC)"
 
 report.info("Derive execution boundaries for S01")
-print "B01 - lowest number of cores  : %s" % stages_compute_limits['min']
+print "B01 - lowest number of cores  : %s" % task_compute_limits['min']
 print "      longest execution time  : %s seconds" % stages_time_limits['max']
 print "B02 - highest number of cores : %s" % stages_compute_limits['max']
-print "      shortest execution time : %s seconds" % stages_time_limits['min']
+print "      shortest execution time : %s seconds" % task_time_limits['min']
 
 
 #------------------------------------------------------------------------------
@@ -581,7 +587,7 @@ def pilot_state_cb(pilot, state):
     """
 
     if pilot:
-        print "\033[92mPilot %s is %s on %s\033[0m" % \
+        print "\033[92mPilot pilot-%s is %s on %s\033[0m" % \
             (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
 
 
@@ -670,23 +676,15 @@ if __name__ == "__main__":
         cores = math.ceil((stages_compute_limits['max']*eur_concurrency)/100.0)
 
         print "Total number of cores            : %d" % cores
+        print "Total number of pilots           : %i" % len(resources)
 
         # TODO: derive overhead dynamically from stage_in time + agent
         # bootstrap + agent task queue management overheads. This would
         # required robust stats about the available bandwidth.
-        if len(skeleton.tasks) <= 21:
-            rp_overhead = 15
 
-        elif len(skeleton.tasks) > 21 and len(skeleton.tasks) <= 2049:
-            rp_overhead = 45
-
-        elif len(skeleton.tasks) > 2049 and len(skeleton.tasks) <= 3073:
-            rp_overhead = 135
-
-        elif len(skeleton.tasks) > 3073 and len(skeleton.tasks) <= 4096:
-            rp_overhead = 405
-
-        print "Total number of pilots           : %i" % len(resources)
+        compute_time = task_time_limits['min']*len(resources)
+        staging_time = (((total_input_data+total_output_data)/1024)/1024)*5
+        rp_overhead_time = 600+len(skeleton.tasks)*4
 
         report.info("Pilot descriptions")
 
@@ -747,18 +745,15 @@ if __name__ == "__main__":
             # that the time that takes to run all the tasks on a single pilot
             # with 'number of tasks in the skeleton'/'number of pilots' cores.
             # NOTE: runtime expressed in minutes.
-            pdesc.runtime = (math.ceil(
-                             (math.ceil(
-                              float(stages_time_limits['max'] /
-                                    pdesc.cores))) /
-                             60.0) +
-                             rp_overhead)
+            pdesc.runtime = math.ceil((compute_time +
+                                       staging_time +
+                                       rp_overhead_time))/60.0
 
             print "Walltime          : %s minutes" % pdesc.runtime
 
             pdesc.cleanup = True
 
-            print "Clean remote data : TRUE\n"
+            print "Clean remote data : True\n"
 
             pdescs.append(pdesc)
 
