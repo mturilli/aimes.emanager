@@ -289,19 +289,19 @@ for resource_name in bundle.resources:
 # resources.
 total_core_capacity = 0
 
-for resource_name in bundle.resources:
-        resource = bundle.resources[resource_name]
+for r_name in bundle.resources:
+        resource = bundle.resources[r_name]
 
-        for queue_name in resource.queues:
-            queue = resource.queues[queue_name]
+        for q_name in resource.queues:
+            queue = resource.queues[q_name]
 
-            if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
+            if q_name == 'normal' or q_name == 'batch' or q_name == 'default' or q_name == 'regular':
                 total_core_capacity += queue.num_procs_limit
 
 # Report back to the demo about the available resource bundle.
 report.info("Target Resources")
 print "IDs: %s" % \
-    [bundle.resources[resource].name for resource in bundle.resources]
+    [str(bundle.resources[resource].name) for resource in bundle.resources]
 print "Total core capacity: %i" % total_core_capacity
 print
 
@@ -317,6 +317,8 @@ print "  Queue max number of jobs..................... OK"
 print "  Queue core capacity.......................... OK"
 print "  Queue available capacity..................... OK"
 print "  Queue length................................. OK"
+
+sys.exit(0)
 
 # Bundle API DEBUG
 #------------------------------------------------------------------------------
