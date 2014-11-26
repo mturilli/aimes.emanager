@@ -318,8 +318,6 @@ print "  Queue core capacity.......................... OK"
 print "  Queue available capacity..................... OK"
 print "  Queue length................................. OK"
 
-sys.exit(0)
-
 # Bundle API DEBUG
 #------------------------------------------------------------------------------
 if EMANAGER_DEBUG:
