@@ -586,9 +586,13 @@ def pilot_state_cb(pilot, state):
     """Called every time a ComputePilot changes its state.
     """
 
+    # This guard is to mitigate the erroneous management of the pilot state
+    # from the RP back-end.  In some conditions, the callback is called when
+    # the state of the pilot is not available when it should be.
     if pilot:
-        print "\033[92mPilot pilot-%s is %s on %s\033[0m" % \
-            (pilot.uid, state.ljust(13), pilot.resource.ljust(17))
+
+        print "\033[92mPilot pilot-%-13s is %s on %-17s\033[0m" % \
+            (pilot.uid, state, pilot.resource)
 
 
 def unit_state_change_cb(cu, state, pilots):
@@ -596,39 +600,39 @@ def unit_state_change_cb(cu, state, pilots):
     very time a ComputeUnit changes its state.
     """
 
-    resource = None
+    # This guard is necessary to mitigate the side-effects of the erroneous
+    # management of the CU state from the RP back-end. In some conditions, the
+    # callback is called when the state of the CU is not available when it
+    # should be.
+    if cu:
 
-    for pilot in pilots:
-        if cu:
+        resource = None
+
+        for pilot in pilots:
             if pilot.uid == cu.pilot_id:
                 resource = pilot.resource
                 break
 
-    if not resource:
-        print "\033[1mCU %s\033[0m (unit-%s) is %s" % \
-            (cu.name.ljust(12), cu.uid, state.ljust(20))
+        if not resource:
+            print "\033[1mCU %-12s\033[0m (unit-%s) is %s" % \
+                (cu.name, cu.uid, state)
 
-    elif not cu.pilot_id:
-        print "\033[1mCU %s\033[0m (unit-%s) is %s on %s" % \
-            (cu.name.ljust(12),
-             cu.uid, state.ljust(20),
-             resource)
+        elif not cu.pilot_id:
+            print "\033[1mCU %s\033[0m (unit-%-12s) is %-20s on %s" % \
+                (cu.name, cu.uid, state, resource)
 
-    else:
-        print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
-            (cu.name.ljust(12),
-             cu.uid, state.ljust(20),
-             resource,
-             cu.pilot_id)
-
-    if state == rp.FAILED:
-        sys.exit(1)
+        else:
+            print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
+                (cu.name.ljust(12),
+                 cu.uid, state.ljust(20),
+                 resource,
+                 cu.pilot_id)
 
 
 def wait_queue_size_cb(umgr, wait_queue_size):
     """Called when the size of the unit managers wait_queue changes.
     """
-    print "\033[1mUnitManager\033[0m '%s' is %s" % \
+    print "\033[1mUnitManager\033[0m (unit-manager-%s) has queue size: %s" % \
         (umgr.uid, wait_queue_size)
 
 
@@ -678,12 +682,28 @@ if __name__ == "__main__":
         print "Total number of cores            : %d" % cores
         print "Total number of pilots           : %i" % len(resources)
 
-        # TODO: derive overhead dynamically from stage_in time + agent
-        # bootstrap + agent task queue management overheads. This would
-        # required robust stats about the available bandwidth.
-
+        # TIME COMPONENTS OF EACH PILOT WALLTIME
+        #----------------------------------------------------------------------
+        # Compute time: the time that a group of tasks take to run on a pilot
+        # of the resource overlay given the decided degree of concurrency.
+        # Requirements: we need to be able to run all the given tasks on a
+        # single pilot - i.e. the worse case scenario where of the multiple
+        # pilots, a single one is available for enough time to run the whole
+        # workload at 1/n of the optimal concurrency of having all the pilots
+        # available. Hidden assumption: pilots are heterogeneous - all have the
+        # same walltime and number of cores.
         compute_time = task_time_limits['min']*len(resources)
+
+        # Staging time: the time needed to move the files needed by each task
+        # of each pilot. We assume a conservative 5 seconds per MB. This figure
+        # needs extreme refinement, based on collected networking/data
+        # writing/reading performance within and among each resource and the
+        # origin point of the data.
         staging_time = (((total_input_data+total_output_data)/1024)/1024)*5
+
+        # RP overhead time: the time taken by RP to bootstrap and manage each
+        # CU for each pilot. Also this value needs to be assessed by reiterated
+        # measurement.
         rp_overhead_time = 600+len(skeleton.tasks)*4
 
         report.info("Pilot descriptions")
@@ -733,30 +753,26 @@ if __name__ == "__main__":
             # We assume a uniform distribution of the total amount of cores
             # across all the available pilots. Future optimizations may take
             # into consideration properties of the resources that would justify
-            # a bias distribution of the cores.
+            # a biased/proportional distribution of the cores.
             pdesc.cores = math.ceil(float(cores/len(resources)))
 
             print "Number of cores   : %s" % pdesc.cores
 
-            # We assume enough runtime for each pilot to run all the tasks of
-            # the skeleton. This covers the case in which one pilot comes
-            # online while all the others are still queued and the time delta
-            # between the first and the second pilot coming online is greater
-            # that the time that takes to run all the tasks on a single pilot
-            # with 'number of tasks in the skeleton'/'number of pilots' cores.
-            # NOTE: runtime expressed in minutes.
+            # Aggregate time components for the pilot walltime.
             pdesc.runtime = math.ceil((compute_time +
                                        staging_time +
                                        rp_overhead_time))/60.0
 
             print "Walltime          : %s minutes" % pdesc.runtime
 
+            # We clean the pilot files once execution is done.
             pdesc.cleanup = True
 
             print "Clean remote data : True\n"
 
             pdescs.append(pdesc)
 
+        # DEBUG: print the full description.
         if EMANAGER_DEBUG:
             for pdesc in pdescs:
                 print pdesc
@@ -766,12 +782,9 @@ if __name__ == "__main__":
         # EXECUTION PATTERN: two stages, sequential:
         # - Describe CU for stage 1.
         # - Describe CU for stage 2.
-        # - Run Stage 1.
-        # - Retrieve all the output files from Stage 1.
-        # - Stage all the output files of Stage 1 as input files for Stage 2 on
-        #   all the remote resources on which a pilot is queued.
-        # - Execute the task of Stage 2.
-        # - Retrieve the output files.
+        # - Run Stage 1: unit input stage in; run; unit output stage out.
+        # - Run Stage 2: unit input stage in; run; unit output stage out.
+        # - Shutdown.
 
         # CUs descriptions Stage 1
         report.info("CUs descriptions for Stage 1")
@@ -780,10 +793,11 @@ if __name__ == "__main__":
         # coders. This is ad hoc and will have to be replaced by an automated
         # understanding of the constraints on the execution of a specific type
         # of workload. For example, the emanager will have to learn that the
-        # type of Skeleton (or applicaiton) is a pipeline and will have to
-        # infer by means of a knowledge base that a pipeline requires a
-        # sequential execution of all its stages. The creation of the CUs in
-        # terms of how and when will depend on that inference.
+        # type of Skeleton (or application) is a pipeline and will have to
+        # infer that a pipeline requires a sequential execution of all its
+        # stages. The creation of the CUs in terms of how and when will depend
+        # on that inference. In the short term, create a for loop on the
+        # available stages.
         stage_1_cuds = []
 
         print("Tasks translated into CUs"),
@@ -929,7 +943,7 @@ if __name__ == "__main__":
         # Close the session so to shutdown all the pilots cleanly
         report.header("Shutting down resource overlay")
 
-        session.close(cleanup=False, terminate=True)
+        session.close(cleanup=True, terminate=True)
         #sys.exit(0)
 
     except Exception as e:
