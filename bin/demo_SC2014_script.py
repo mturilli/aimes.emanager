@@ -209,7 +209,6 @@ if EMANAGER_DEBUG:
     for stage in skeleton.stages:
         report.info("stage.name       : %s" % stage.name)
         print "stage.tasks      : %s" % stage.tasks
-        print "stage.inputdir[0]: %s" % stage.inputdir[0]
 
         # Derive stage size
         print "len(stage.tasks) : %s" % len(stage.tasks)
@@ -519,30 +518,17 @@ print "%s \n" % resource_priority
 # required container.
 def uri_to_tag(resource):
 
-    tag = ''
+    tag = {
+            'blacklight_psc_xsede_org' : 'xsede.stampede'   ,  # FIXME
+            'gordon_sdsc_xsede_org'    : 'xsede.gordon'     ,
+            'stampede_tacc_utexas_edu' : 'xsede.stampede'   ,
+            'stampede_tacc_xsede_org'  : 'xsede.stampede'   ,
+            'stampede_xsede_org'       : 'xsede.stampede'   ,
+            'trestles_sdsc_xsede_org'  : 'xsede.trestles'   ,
+            'hopper_nersc_gov'         : 'nersc.hopper'     ,
+          }.get (resource)
 
-    if resource == 'blacklight_psc_xsede_org':
-        tag = 'xsede.blacklight'
-
-    elif resource == 'gordon_sdsc_xsede_org':
-        tag = 'xsede.gordon'
-
-    elif resource == 'stampede_tacc_utexas_edu':
-        tag = 'xsede.stampede'
-
-    elif resource == 'stampede_tacc_xsede_org':
-        tag = 'xsede.stampede'
-
-    elif resource == 'stampede_xsede_org':
-        tag = 'xsede.stampede'
-
-    elif resource == 'trestles_sdsc_xsede_org':
-        tag = 'xsede.trestles'
-
-    elif resource == 'hopper_nersc_gov':
-        tag = 'nersc.hopper'
-
-    else:
+    if not tag :
         sys.exit("Unknown resource specified in bundle: %s" % resource)
 
     return tag
@@ -813,11 +799,16 @@ if __name__ == "__main__":
             for task in stage.tasks:
                 cud = rp.ComputeUnitDescription()
                 cud.name = stage.name+'_'+task.name
-                cud.executable = task.command.split()[0]
+                cud.executable = "./%s" % task.command.split()[0]
                 cud.arguments = task.command.split()[1:]
                 cud.cores = task.cores
+                cud.pre_exec = list()
                 cud.input_staging = list()
                 cud.output_staging = list()
+
+                # make sure the task is compiled on the fly
+                cud.input_staging.append (aimes.skeleton.TASK_LOCATION)
+                cud.pre_exec.append      (aimes.skeleton.TASK_COMPILE)
 
                 iodirs = task.command.split()[9:-1]
                 odir = iodirs[-1].split('/')[0]
@@ -925,6 +916,7 @@ if __name__ == "__main__":
     except Exception as e:
         # this catches all RP and system exceptions
         print "Caught exception: %s" % e
+        raise
 
     except (KeyboardInterrupt, SystemExit) as e:
         # the callback called sys.exit(), we catch the corresponding
@@ -932,8 +924,10 @@ if __name__ == "__main__":
         # SystemExit which gets raised if the main threads exits for
         # some other reason.
         print "Caught exception, exit now: %s" % e
+        raise
 
     finally:
         # always clean up the session, no matter whether we caught an exception
         report.header("End of AIMES SC2014 demo.")
         session.close(cleanup=False, terminate=True)
+
