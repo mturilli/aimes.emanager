@@ -15,9 +15,10 @@ export RADICAL_PILOT_BENCHMARK=
 export SAGA_VERBOSE=debug
 export RADICAL_PILOT_VERBOSE=debug
 export RADICAL_UTILS_VERBOSE=debug
-export RADICAL_PILOT_LOG_TARGETS=\>/tmp/aimes_demo_sc2014_debug.log
-export SAGA_LOG_TARGETS=\>/tmp/aimes_demo_sc2014_debug.log
-export RADICAL_UTILS_LOG_TARGETS=\>/tmp/aimes_demo_sc2014_debug.log
+export RADICAL_DEBUG_FILE=/tmp/aimes_demo_sc2014_debug.log
+export RADICAL_PILOT_LOG_TARGETS=\>$RADICAL_DEBUG_FILE
+export SAGA_LOG_TARGETS=\>$RADICAL_DEBUG_FILE
+export RADICAL_UTILS_LOG_TARGETS=\>$RADICAL_DEBUG_FILE
 #export EMANAGER_DEBUG
 
 # Set up eManager execution environment
