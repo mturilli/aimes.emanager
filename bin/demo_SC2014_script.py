@@ -11,6 +11,8 @@ TODO:
 - Use radical.utils configuration tools instead of environment variables.
 - Centralized authentication/authorization tokens into the configuration file.
 - Create a python module for radical.demos.
+- Get single colors to format arbitrary strings in print from
+  radical.utils.Reporter.
 """
 
 __author__ = "Matteo Turilli, Andre Merzky"
@@ -622,19 +624,16 @@ def unit_state_change_cb(cu, state, pilots):
                 break
 
         if not resource:
-            print "\033[1mCU %-12s\033[0m (unit-%s) is %s" % \
+            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %s" % \
                 (cu.name, cu.uid, state)
 
         elif not cu.pilot_id:
-            print "\033[1mCU %s\033[0m (unit-%-12s) is %-20s on %s" % \
+            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %-20s on %s" % \
                 (cu.name, cu.uid, state, resource)
 
         else:
-            print "\033[1mCU %s\033[0m (unit-%s) is %s on %s (pilot-%s)" % \
-                (cu.name.ljust(12),
-                 cu.uid, state.ljust(20),
-                 resource,
-                 cu.pilot_id)
+            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %-20s on %-13s (pilot-%s)" % \
+                (cu.name, cu.uid, state, resource, cu.pilot_id)
 
 
 def wait_queue_size_cb(umgr, wait_queue_size):
@@ -820,7 +819,7 @@ if __name__ == "__main__":
                 cud.input_staging = list()
                 cud.output_staging = list()
 
-                idir = stage.name+'_Input'
+                idir = stage.name+'_Input/'
 
                 for i in task.inputs:
                     cud.input_staging.append({
@@ -829,7 +828,7 @@ if __name__ == "__main__":
                         'flags': rp.CREATE_PARENTS
                         })
 
-                odir = stage.name+'_Output'
+                odir = stage.name+'_Output/'
 
                 for o in task.outputs:
                     cud.output_staging.append({
@@ -899,7 +898,7 @@ if __name__ == "__main__":
 
         for stage in skeleton.stages:
 
-            report.info("\nExecuting %s" % stage.name)
+            report.info("Executing %s" % stage.name)
 
             print "CUs of %s submitted to the Unit Manager: UID %s\n" % \
                 (stage.name, umgr.uid)
