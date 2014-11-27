@@ -819,7 +819,13 @@ if __name__ == "__main__":
                 cud.input_staging = list()
                 cud.output_staging = list()
 
-                idir = stage.name+'_Input/'
+                iodirs = task.command.split()[9:-1]
+                odir = iodirs[-1].split('/')[0]
+
+                for i in range(1, len(iodirs)):
+                    if iodirs[i].split('/')[0]+'/' != odir:
+                        idir = iodirs[i].split('/')[0]+'/'
+                        break
 
                 for i in task.inputs:
                     cud.input_staging.append({
@@ -827,8 +833,6 @@ if __name__ == "__main__":
                         'target': idir + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
-
-                odir = stage.name+'_Output/'
 
                 for o in task.outputs:
                     cud.output_staging.append({
