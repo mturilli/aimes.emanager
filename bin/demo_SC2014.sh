@@ -27,7 +27,7 @@ radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
 
 # Archive the logs.
 tar cfj out.log.bz2 out.log
-cp -p $RADICAL_DEBUG_FILE .
+cp -p "$RADICAL_DEBUG_FILE-$SESSION_UID" .
 
 # Write the body of the e-mail.
 cat > description.log <<EOL
