@@ -897,6 +897,9 @@ if __name__ == "__main__":
             session=session,
             scheduler=rp.SCHED_BACKFILLING)
 
+        # Register the unit manager callback
+        umgr.register_callback(wait_queue_size_cb, rp.WAIT_QUEUE_SIZE)
+
         print "Unit Manager initialized      : UID %s" % umgr.uid
 
         # Add pilots to the unit manager.
