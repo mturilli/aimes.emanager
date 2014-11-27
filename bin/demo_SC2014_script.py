@@ -38,7 +38,7 @@ import aimes.skeleton
 # variables.
 EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG")
 
-DEMO_FOLDER = os.getenv("DEMO_FOLDER")
+DEMO_FOLDER = os.getenv("DEMO_FOLDER")+'/'
 if DEMO_FOLDER is None:
     print "ERROR: DEMO_FOLDER is not defined."
     sys.exit(1)
@@ -624,15 +624,15 @@ def unit_state_change_cb(cu, state, pilots):
                 break
 
         if not resource:
-            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %s" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %s" % \
                 (cu.name, cu.uid, state)
 
         elif not cu.pilot_id:
-            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %-20s on %s" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %s" % \
                 (cu.name, cu.uid, state, resource)
 
         else:
-            print "\033[1mCU %-13s\033[0m (unit-%-12s) is %-20s on %-13s (pilot-%s)" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %-13s (pilot-%s)" % \
                 (cu.name, cu.uid, state, resource, cu.pilot_id)
 
 
