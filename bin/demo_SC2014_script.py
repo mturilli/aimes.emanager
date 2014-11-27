@@ -3,6 +3,14 @@
 # pylint: disable-msg=C0103
 
 """Implements an Execution Manager for the AIMES demo.
+
+TODO:
+- Separate output from code. Create a function for each output block.
+- Decompose each block into a function and create a main that calls the
+  sequence of blocks composing the demo.
+- Use radical.utils configuration tools instead of environment variables.
+- Centralized authentication/authorization tokens into the configuration file.
+- Create a python module for radical.demos.
 """
 
 __author__ = "Matteo Turilli, Andre Merzky"
@@ -591,7 +599,7 @@ def pilot_state_cb(pilot, state):
     # the state of the pilot is not available when it should be.
     if pilot:
 
-        print "\033[92mPilot pilot-%-13s is %s on %-17s\033[0m" % \
+        print "\033[34mPilot pilot-%-13s is %s on %-17s\033[0m" % \
             (pilot.uid, state, pilot.resource)
 
 
@@ -632,7 +640,7 @@ def unit_state_change_cb(cu, state, pilots):
 def wait_queue_size_cb(umgr, wait_queue_size):
     """Called when the size of the unit managers wait_queue changes.
     """
-    print "\033[1mUnitManager\033[0m (unit-manager-%s) has queue size: %s" % \
+    print "\033[31mUnitManager (unit-manager-%s) has queue size: %s\033[0m" % \
         (umgr.uid, wait_queue_size)
 
 
@@ -786,95 +794,63 @@ if __name__ == "__main__":
         # - Run Stage 2: unit input stage in; run; unit output stage out.
         # - Shutdown.
 
-        # CUs descriptions Stage 1
-        report.info("CUs descriptions for Stage 1")
-
         # TOD: We leverage the knowledge we have of the skeleton - we as in
         # coders. This is ad hoc and will have to be replaced by an automated
         # understanding of the constraints on the execution of a specific type
-        # of workload. For example, the emanager will have to learn that the
+        # of workflow. For example, the emanager will have to learn that the
         # type of Skeleton (or application) is a pipeline and will have to
         # infer that a pipeline requires a sequential execution of all its
-        # stages. The creation of the CUs in terms of how and when will depend
-        # on that inference. In the short term, create a for loop on the
-        # available stages.
-        stage_1_cuds = []
+        # stages.
+        cuds = dict()
 
-        print("Tasks translated into CUs"),
+        for stage in skeleton.stages:
 
-        for task in skeleton.tasks:
-            if task.stage().name == "Stage_1":
+            report.info("CUs descriptions for %s" % stage.name)
 
+            cuds[stage.name] = list()
+
+            print("Tasks translated into CUs"),
+
+            for task in stage.tasks:
                 cud = rp.ComputeUnitDescription()
-                cud.name = task.name
-                cud.executable = "task"
+                cud.name = stage.name+'_'+task.name
+                cud.executable = task.command.split()[0]
                 cud.arguments = task.command.split()[1:]
-                cud.cores = 1
+                cud.cores = task.cores
                 cud.input_staging = list()
                 cud.output_staging = list()
 
+                idir = stage.name+'_Input'
+
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': DEMO_FOLDER + '/Stage_1_Input/' + i['name'],
-                        'target': 'Stage_1_Input/' + i['name'],
+                        'source': DEMO_FOLDER + idir + i['name'],
+                        'target': idir + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
+
+                odir = stage.name+'_Output'
 
                 for o in task.outputs:
                     cud.output_staging.append({
-                        'source': 'Stage_1_Output/' + o['name'],
-                        'target': 'Stage_1_Output/' + o['name'],
+                        'source': odir + o['name'],
+                        'target': odir + o['name'],
                         'flags': rp.CREATE_PARENTS
                         })
 
-                cud.restartable = True
+                #cud.restartable = True
                 cud.cleanup = True
 
-                stage_1_cuds.append(cud)
+                cuds[stage.name].append(cud)
                 print(": %s " % cud.name),
 
-        # CUs descriptions Stage 2
-        report.info("\nCUs descriptions for Stage 2")
-
-        stage_2_cuds = []
-
-        print("Tasks translated into CUs"),
-
-        for task in skeleton.tasks:
-            if task.stage().name == "Stage_2":
-
-                cud = rp.ComputeUnitDescription()
-                cud.name = task.name
-                cud.executable = "task"
-                cud.arguments = task.command.split()[1:]
-                cud.cores = 1
-                cud.input_staging = list()
-                cud.output_staging = list()
-
-                for i in task.inputs:
-                    cud.input_staging.append({
-                        'source': DEMO_FOLDER + '/Stage_1_Output/' + i['name'],
-                        'target': 'Stage_1_Output/' + i['name'],
-                        'flags': rp.CREATE_PARENTS
-                        })
-
-                for o in task.outputs:
-                    cud.output_staging.append({
-                        'source': 'Stage_2_Output/' + o['name'],
-                        'target': 'Stage_2_Output/' + o['name'],
-                        'flags': rp.CREATE_PARENTS
-                        })
-
-                cud.restartable = True
-                cud.cleanup = True
-
-                stage_2_cuds.append(cud)
-                print(": %s" % cud.name),
+            # This is just aesthetics.
+            print
 
         # PILOT SUBMISSIONS
         #----------------------------------------------------------------------
         # Submit the pilots just described.
-        report.info("\nPilot submissions")
+        report.info("Pilot submissions")
 
         for pdesc in pdescs:
             print "Pilot on resource %s SUBMITTED to PM %s" % \
@@ -920,26 +896,19 @@ if __name__ == "__main__":
         # Submit the previously created ComputeUnit descriptions to the
         # PilotManager. This will trigger the selected scheduler to
         # start assigning ComputeUnits to the ComputePilots.
-        report.info("\nExecuting Stage 1")
-        print "CUs of Stage 1 submitted to the Unit Manager: UID %s\n" % \
-            umgr.uid
 
-        umgr.submit_units(stage_1_cuds)
+        for stage in skeleton.stages:
 
-        # Wait for all compute units to finish.
-        umgr.wait_units()
-        print "Execution done."
+            report.info("\nExecuting %s" % stage.name)
 
-        # Execute Stage 2
-        report.info("Executing Stage 2")
-        print "CUs of Stage 2 submitted to the Unit Manager: UID %s\n" % \
-            umgr.uid
+            print "CUs of %s submitted to the Unit Manager: UID %s\n" % \
+                (stage.name, umgr.uid)
 
-        umgr.submit_units(stage_2_cuds)
+            umgr.submit_units(cuds[stage.name])
 
-        # Wait for all compute units to finish.
-        umgr.wait_units()
-        report.ok("\nExecution done.")
+            # Wait for all compute units to finish.
+            umgr.wait_units()
+            print "Execution done."
 
         # CLEAN UP AND SHUT DOWN
         #----------------------------------------------------------------------
