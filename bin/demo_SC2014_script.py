@@ -822,22 +822,23 @@ if __name__ == "__main__":
                 iodirs = task.command.split()[9:-1]
                 odir = iodirs[-1].split('/')[0]
 
-                for i in range(1, len(iodirs)):
-                    if iodirs[i].split('/')[0]+'/' != odir:
-                        idir = iodirs[i].split('/')[0]+'/'
+                for i in range(0, len(iodirs)):
+
+                    if iodirs[i].split('/')[0] != odir:
+                        idir = iodirs[i].split('/')[0]
                         break
 
                 for i in task.inputs:
                     cud.input_staging.append({
-                        'source': DEMO_FOLDER + idir + i['name'],
-                        'target': idir + i['name'],
+                        'source': DEMO_FOLDER + idir + '/' + i['name'],
+                        'target': idir + '/' + i['name'],
                         'flags': rp.CREATE_PARENTS
                         })
 
                 for o in task.outputs:
                     cud.output_staging.append({
-                        'source': odir + o['name'],
-                        'target': odir + o['name'],
+                        'source': odir + '/' + o['name'],
+                        'target': odir + '/' + o['name'],
                         'flags': rp.CREATE_PARENTS
                         })
 
