@@ -148,27 +148,30 @@ for stage in skeleton.stages:
     for task in stage.tasks:
 
         if not t_cores:
-            t_cores == task.cores
-
-        elif t_cores and t_cores != task.cores:
-            task_space_type = 'heterogeneous'
+            t_cores = task.cores
 
         elif not t_length:
             t_length = task.length
 
-        elif t_length and t_length != task.length:
+        elif t_cores != task.cores:
+            task_space_type = 'heterogeneous'
+
+        elif t_length != task.length:
             task_time_type = 'heterogeneous'
 
     if task_space_type == 'homogeneous' and task_time_type == 'homogeneous':
         print "Type of tasks   : space and time homogeneous"
 
-    elif task_space_type == 'heterogeneous' and task_time_type == 'heterogeneous':
+    elif (task_space_type == 'heterogeneous' and
+          task_time_type == 'heterogeneous'):
         print "Type of tasks   : space and time heterogeneous"
 
-    elif task_space_type == 'heterogeneous' and task_time_type == 'homogeneous':
+    elif (task_space_type == 'heterogeneous' and
+          task_time_type == 'homogeneous'):
         print "Type of tasks   : space heterogeneous; time homogeneous"
 
-    elif task_space_type == 'homogeneous' and task_time_type == 'heterogeneous':
+    elif (task_space_type == 'homogeneous' and
+          task_time_type == 'heterogeneous'):
         print "Type of tasks   : space homogeneous; time heterogeneous"
 
     # Find out how many input/output files and how much space they require for
@@ -304,7 +307,10 @@ for r_name in bundle.resources:
         for q_name in resource.queues:
             queue = resource.queues[q_name]
 
-            if q_name == 'normal' or q_name == 'batch' or q_name == 'default' or q_name == 'regular':
+            if (q_name == 'normal' or
+                    q_name == 'batch' or
+                    q_name == 'default' or
+                    q_name == 'regular'):
                 total_core_capacity += queue.num_procs_limit
 
 # Report back to the demo about the available resource bundle.
@@ -470,19 +476,29 @@ for label in colums_labels:
 
         elif label == 'Queue num_cores':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
+                if (queue == 'normal' or
+                        queue == 'batch' or
+                        queue == 'default' or
+                        queue == 'regular'):
                     data[label].append(resource.queues[queue].num_procs_limit)
                     break
 
         elif label == 'Queue length':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
-                    data[label].append(resource.queues[queue].num_queueing_jobs)
+                if (queue == 'normal' or
+                        queue == 'batch' or
+                        queue == 'default' or
+                        queue == 'regular'):
+                    data[label].append(
+                        resource.queues[queue].num_queueing_jobs)
                     break
 
         elif label == 'Load':
             for queue in resource.queues:
-                if queue == 'normal' or queue == 'batch' or queue == 'default' or queue == 'regular':
+                if (queue == 'normal' or
+                        queue == 'batch' or
+                        queue == 'default' or
+                        queue == 'regular'):
                     total = resource.queues[queue].alive_nodes
                     busy = float(resource.queues[queue].busy_nodes)
                     data[label].append((busy*100)/total)
@@ -538,7 +554,7 @@ resource_avail = resource_priority['Name'].tolist()
 resources = list()
 
 while len(resources) < eur_resources_number and \
-      len(resources) < len(resource_avail):
+        len(resources) < len(resource_avail):
     resources.append(uri_to_tag(resource_avail[len(resources)]))
 
 print "Decision D03 based on D02, E02 - How many resource should be used?"
@@ -644,10 +660,11 @@ if __name__ == "__main__":
 
     print "Execution session created        : UID %s" % session.uid
 
-    aimes_uid=os.environ.get ('AIMES_USER_ID', None)
-    if aimes_uid == 'merzky' :
+    aimes_uid = os.environ.get('AIMES_USER_ID', None)
+
+    if aimes_uid == 'merzky':
         print 'hi Andre, again!'
-    else :
+    else:
         context = rp.Context('ssh')
         context.user_id = 'mturilli'
         session.add_context(context)
