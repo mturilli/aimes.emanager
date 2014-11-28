@@ -384,16 +384,19 @@ task_compute_limits['min'] = 0
 task_time_limits['min'] = 0
 
 for task in skeleton.tasks:
+
+    ceil = int(math.ceil(task.length))
+
     stages_compute_limits['max'] += task.cores
-    stages_time_limits['max'] += task.length
+    stages_time_limits['max'] += ceil
 
     # We assume tasks with heterogeneous core requirements.
     if task_compute_limits['min'] < task.cores:
         task_compute_limits['min'] = task.cores
 
     # We assume tasks with heterogeneous runtime.
-    if task_time_limits['min'] < task.length:
-        task_time_limits['min'] = task.length
+    if task_time_limits['min'] < ceil:
+        task_time_limits['min'] = ceil
 
 report.header("Execution Strategy")
 
