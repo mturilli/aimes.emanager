@@ -34,9 +34,9 @@ import aimes.skeleton
 # -----------------------------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------------------------
-# TODO: use radical.utils configuration module instead of environmental
-# variables.
 EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG")
+
+DEMO_TITLE = os.getenv("RUN_TAG")
 
 DEMO_FOLDER = os.getenv("DEMO_FOLDER")+'/'
 if DEMO_FOLDER is None:
@@ -95,7 +95,7 @@ else:
 # Reporter
 # -----------------------------------------------------------------------------
 # Create a reporter for the demo. Takes care of colors and font attributes.
-report = ru.Reporter(title='AIMES Demo SC2014')
+report = ru.Reporter(title=DEMO_TITLE)
 
 pd.set_option('display.width', 1000)
 
@@ -537,15 +537,13 @@ print "%s \n" % resource_priority
 # required container.
 def uri_to_tag(resource):
 
-    tag = {
-            'blacklight_psc_xsede_org' : 'xsede.stampede'   ,  # FIXME
-            'gordon_sdsc_xsede_org'    : 'xsede.gordon'     ,
-            'stampede_tacc_utexas_edu' : 'xsede.stampede'   ,
-            'stampede_tacc_xsede_org'  : 'xsede.stampede'   ,
-            'stampede_xsede_org'       : 'xsede.stampede'   ,
-            'trestles_sdsc_xsede_org'  : 'xsede.trestles'   ,
-            'hopper_nersc_gov'         : 'nersc.hopper'     ,
-          }.get (resource)
+    tag = {'blacklight_psc_xsede_org': 'xsede.stampede',
+           'gordon_sdsc_xsede_org'   : 'xsede.gordon',
+           'stampede_tacc_utexas_edu': 'xsede.stampede',
+           'stampede_tacc_xsede_org' : 'xsede.stampede',
+           'stampede_xsede_org'      : 'xsede.stampede',
+           'trestles_sdsc_xsede_org' : 'xsede.trestles',
+           'hopper_nersc_gov'        : 'nersc.hopper'}.get(resource)
 
     if not tag :
         sys.exit("Unknown resource specified in bundle: %s" % resource)
@@ -819,7 +817,8 @@ if __name__ == "__main__":
             for task in stage.tasks:
                 cud = rp.ComputeUnitDescription()
                 cud.name = stage.name+'_'+task.name
-                cud.executable = "./%s" % task.command.split()[0]
+                #cud.executable = "./%s" % task.command.split()[0]
+                cud.executable = task.command.split()[0]
                 cud.arguments = task.command.split()[1:]
                 cud.cores = task.cores
                 cud.pre_exec = list()
@@ -827,8 +826,10 @@ if __name__ == "__main__":
                 cud.output_staging = list()
 
                 # make sure the task is compiled on the fly
-                cud.input_staging.append (aimes.skeleton.TASK_LOCATION)
-                cud.pre_exec.append      (aimes.skeleton.TASK_COMPILE)
+                # FIXME: it does not work with trestles as it assumes only a
+                # working cc compiler.
+                #cud.input_staging.append (aimes.skeleton.TASK_LOCATION)
+                #cud.pre_exec.append      (aimes.skeleton.TASK_COMPILE)
 
                 iodirs = task.command.split()[9:-1]
                 odir = iodirs[-1].split('/')[0]
@@ -853,6 +854,7 @@ if __name__ == "__main__":
                         'flags': rp.CREATE_PARENTS
                         })
 
+                # FIXME: restartable CUs still do not work.
                 #cud.restartable = True
                 cud.cleanup = True
 
