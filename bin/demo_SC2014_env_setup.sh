@@ -39,7 +39,10 @@ username=`id -un`
 if test "$username" = "merzky"
 then
     echo "hi Andre"
-    export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
+    export EMANAGER_DEBUG=TRUE
     export AIMES_USER_ID=merzky
+    export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
+    export BUNDLE_CONF=/home/merzky/saga/aimes.emanager/etc/bundle_demo_SC2014.conf
+    export SKELETON_CONF=/home/merzky/saga/aimes.emanager/etc/skeleton_demo_SC2014.conf
 fi
 
