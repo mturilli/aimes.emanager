@@ -604,7 +604,7 @@ def pilot_state_cb(pilot, state):
     # the state of the pilot is not available when it should be.
     if pilot:
 
-        print "\033[34mPilot pilot-%-13s is %s on %-17s\033[0m" % \
+        print "\033[34mPilot pilot-%-13s is %-20s on %s\033[0m" % \
             (pilot.uid, state, pilot.resource)
 
 
