@@ -929,7 +929,9 @@ if __name__ == "__main__":
 
             # Wait for all compute units to finish.
             umgr.wait_units()
-            print "Execution done."
+            print "%s execution is done." % stage.name
+
+        print "Workflow execution is done."
 
         # CLEAN UP AND SHUT DOWN
         #----------------------------------------------------------------------
