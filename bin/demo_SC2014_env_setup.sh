@@ -9,6 +9,36 @@
 # copyright: Copyright 2014, RADICAL
 # license: MIT
 
+# Manage multiple identities when running the script
+username=`id -un`
+
+if test "$username" = "merzky"
+then
+    echo "Hi Andre"
+    export EMANAGER_DEBUG=TRUE
+    export AIMES_USER_ID=merzky
+    export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
+    export BUNDLE_CONF=/home/merzky/saga/aimes.emanager/etc/bundle_demo_SC2014.conf
+    export SKELETON_CONF=/home/merzky/saga/aimes.emanager/etc/skeleton_demo_SC2014.conf
+    export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
+    export XSEDE_PROJECT_ID_TRESTLES='unc102'
+    export XSEDE_PROJECT_ID_GORDON='unc102'
+    export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
+fi
+
+if test "$username" = "mturilli"
+then
+    #export EMANAGER_DEBUG
+    export AIMES_USER_ID=mturilli
+    export DEMO_FOLDER=/home/mturilli/AIMES_demo_SC2014
+    export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
+    export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
+    export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
+    export XSEDE_PROJECT_ID_TRESTLES='unc102'
+    export XSEDE_PROJECT_ID_GORDON='unc102'
+    export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
+fi
+
 # Set up Radical Pilot execution environment
 export RADICAL_PILOT_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/radicalpilot'
 export RADICAL_PILOT_BENCHMARK=
@@ -16,33 +46,14 @@ export SAGA_VERBOSE=debug
 export RADICAL_PILOT_VERBOSE=debug
 export RADICAL_UTILS_VERBOSE=debug
 export RADICAL_DEBUG_FILE=/tmp/aimes_demo_sc2014_debug.log
-export RADICAL_PILOT_LOG_TARGETS=\>$RADICAL_DEBUG_FILE
-export SAGA_LOG_TARGETS=\>\>$RADICAL_DEBUG_FILE
-export RADICAL_UTILS_LOG_TARGETS=\>\>$RADICAL_DEBUG_FILE
-#export EMANAGER_DEBUG
+export RADICAL_PILOT_LOG_TARGETS=$RADICAL_DEBUG_FILE
+export SAGA_LOG_TARGETS=$RADICAL_DEBUG_FILE
+export RADICAL_UTILS_LOG_TARGETS=$RADICAL_DEBUG_FILE
 
 # Set up eManager execution environment
-export DEMO_FOLDER=/home/mturilli/AIMES_demo_SC2014
-
-export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
-export BUNDLE_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/bundle_v0_1/'
-export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 export ORIGIN='54.196.51.239'
+export BUNDLE_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/bundle_v0_1/'
 
-export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
-export XSEDE_PROJECT_ID_TRESTLES='unc102'
-export XSEDE_PROJECT_ID_GORDON='unc102'
-export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
-
-# Manage multiple identities when running the script
-username=`id -un`
-if test "$username" = "merzky"
-then
-    echo "hi Andre"
-    export EMANAGER_DEBUG=TRUE
-    export AIMES_USER_ID=merzky
-    export DEMO_FOLDER=/home/merzky/saga/aimes.emanager
-    export BUNDLE_CONF=/home/merzky/saga/aimes.emanager/etc/bundle_demo_SC2014.conf
-    export SKELETON_CONF=/home/merzky/saga/aimes.emanager/etc/skeleton_demo_SC2014.conf
-fi
-
+# Setup report
+export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
+export RUN_TAG="AIMES demo SC2014"

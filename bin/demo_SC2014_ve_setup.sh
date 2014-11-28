@@ -24,8 +24,6 @@ virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014
 pip install --upgrade -e git://github.com/radical-cybertools/radical.utils.git@devel#egg=radical.utils
 pip install --upgrade -e git://github.com/radical-cybertools/saga-python.git@devel#egg=saga-python
 pip install --upgrade -e git://github.com/radical-cybertools/radical.pilot.git@devel#egg=radical.pilot
-pip install pandas
-pip install Pyro4
 
 # Install AIMES software stack
 pip install --upgrade -e git://github.com/applicationskeleton/Skeleton.git@experimental#egg=Skeleton
@@ -38,3 +36,5 @@ pip install --upgrade .
 cd ../../../
 # pip install --upgrade -e git://bitbucket.org/shantenujha/aimes/modules/emanager.git@devel#egg=emanager
 pip install --upgrade .
+pip install pandas
+pip install Pyro4

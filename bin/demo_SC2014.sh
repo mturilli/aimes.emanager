@@ -2,6 +2,10 @@
 # script 'demo_SC2014_setup.sh. Run the demo from a shell with:
 #
 # . demo_SC2014.sh
+#
+# Author: Matteo Turilli, Andre Merzky
+# copyright: Copyright 2014, RADICAL
+# license: MIT
 
 # Load the environment variables required when running the demo.
 . `which demo_SC2014_env_setup.sh`
@@ -25,13 +29,9 @@ O_DATA=`grep 'Total output data' out.log | cut -d ':' -f 2 | sed 's/^ *\(.*\)/\1
 # Produce diagrams and statistics for the run.
 radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
 
-# Archive the logs.
-tar cfj out.log.bz2 out.log
-cp -p $RADICAL_DEBUG_FILE "$RADICAL_DEBUG_FILE-$SESSION_UID"
-
-# Write the body of the e-mail.
+# Write the body of the report e-mail
 cat > description.log <<EOL
-AIMES SC2014 Demo
+${RUN_TAG}
 
 Libraries
 ---------
@@ -55,5 +55,20 @@ EOL
 
 cat stats.out | sed -e '1,/plotting.../d' >> description.log
 
+# Archive the run.
+ARCHIVE_DIR=$N_TASKS-$SESSION_UID
+
+mv out.log             $ARCHIVE_DIR
+mv stats.out           $ARCHIVE_DIR
+mv description.log     $ARCHIVE_DIR
+mv $RADICAL_DEBUG_FILE $ARCHIVE_DIR
+mv $SESSION_UID.png    $ARCHIVE_DIR
+mv $SESSION_UID.pdf    $ARCHIVE_DIR
+
 # Send the e-mail with the information, stats, diagram of the run.
-cat description.log | mutt -a "${SESSION_UID}.png" -a "stats.out" -s "[AIMES demo SC2014] $N_TASKS tasks - Session UID $SESSION_UID" -- matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
+cat $ARCHIVE_DIR/description.log |                            \
+mutt -a "$ARCHIVE_DIR/$SESSION_UID.png"                       \
+     -a "$ARCHIVE_DIR/stats.out"                              \
+     -a "$ARCHIVE_DIR/log.out"                                \
+     -s "[$RUNTAG] $N_TASKS tasks - Session UID $SESSION_UID" \
+     -- $RECIPIENTS
