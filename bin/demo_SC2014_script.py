@@ -631,7 +631,7 @@ def unit_state_change_cb(cu, state, pilots):
                 (cu.name, cu.uid, state)
 
         elif not cu.pilot_id:
-            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %s" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %-15s on %s" % \
                 (cu.name, cu.uid, state, resource)
 
         else:
@@ -954,4 +954,3 @@ if __name__ == "__main__":
         # always clean up the session, no matter whether we caught an exception
         report.header("End of AIMES SC2014 demo.")
         session.close(cleanup=False, terminate=True)
-

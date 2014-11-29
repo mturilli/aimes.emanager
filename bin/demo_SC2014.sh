@@ -56,7 +56,7 @@ EOL
 cat stats.out | sed -e '1,/plotting.../d' >> description.log
 
 # Archive the run.
-ARCHIVE_DIR=$N_TASKS-$SESSION_UID
+ARCHIVE_DIR=run-$N_TASKS-$SESSION_UID
 
 mkdir $ARCHIVE_DIR
 
