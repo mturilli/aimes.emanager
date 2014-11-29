@@ -934,7 +934,7 @@ if __name__ == "__main__":
         # Close the session so to shutdown all the pilots cleanly
         report.header("Shutting down resource overlay")
 
-        session.close(cleanup=True, terminate=True)
+        session.close(cleanup=False, terminate=True)
         #sys.exit(0)
 
     except Exception as e:
