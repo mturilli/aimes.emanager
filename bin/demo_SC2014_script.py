@@ -604,7 +604,7 @@ def pilot_state_cb(pilot, state):
     # the state of the pilot is not available when it should be.
     if pilot:
 
-        print "\033[34mPilot pilot-%-13s is %-20s on %s\033[0m" % \
+        print "\033[34mPilot pilot-%-13s is %-15s on %s\033[0m" % \
             (pilot.uid, state, pilot.resource)
 
 
@@ -631,7 +631,7 @@ def unit_state_change_cb(cu, state, pilots):
                 (cu.name, cu.uid, state)
 
         elif not cu.pilot_id:
-            print "\033[1mCU %-20s\033[0m (unit-%s) is %-15s on %s" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %s" % \
                 (cu.name, cu.uid, state, resource)
 
         else:
@@ -927,14 +927,14 @@ if __name__ == "__main__":
             umgr.wait_units()
             print "%s execution is done." % stage.name
 
-        print "Workflow execution is done."
+        print "\nWorkflow execution is done."
 
         # CLEAN UP AND SHUT DOWN
         #----------------------------------------------------------------------
         # Close the session so to shutdown all the pilots cleanly
         report.header("Shutting down resource overlay")
 
-        session.close(cleanup=False, terminate=True)
+        #session.close(cleanup=False, terminate=True)
         #sys.exit(0)
 
     except Exception as e:
