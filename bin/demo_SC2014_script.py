@@ -537,7 +537,7 @@ print "%s \n" % resource_priority
 # required container.
 def uri_to_tag(resource):
 
-    tag = {'blacklight_psc_xsede_org': 'xsede.stampede',
+    tag = {'blacklight_psc_xsede_org': 'xsede.blacklight',
            'gordon_sdsc_xsede_org'   : 'xsede.gordon',
            'stampede_tacc_utexas_edu': 'xsede.stampede',
            'stampede_tacc_xsede_org' : 'xsede.stampede',
