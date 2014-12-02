@@ -71,6 +71,6 @@ mv $SESSION_UID.pdf    $ARCHIVE_DIR
 cat $ARCHIVE_DIR/description.log |                            \
 mutt -a "$ARCHIVE_DIR/$SESSION_UID.png"                       \
      -a "$ARCHIVE_DIR/stats.out"                              \
-     -a "$ARCHIVE_DIR/log.out"                                \
-     -s "[$RUNTAG] $N_TASKS tasks - Session UID $SESSION_UID" \
+     -a "$ARCHIVE_DIR/out.log"                                \
+     -s "[$RUN_TAG] $N_TASKS tasks - Session UID $SESSION_UID" \
      -- $RECIPIENTS
