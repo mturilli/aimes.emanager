@@ -633,7 +633,7 @@ def unit_state_change_cb(cu, state, pilots):
                 (cu.name, cu.uid, state, resource)
 
         else:
-            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %-13s (pilot-%s)" % \
+            print "\033[1mCU %-20s\033[0m (unit-%s) is %-20s on %-15s (pilot-%s)" % \
                 (cu.name, cu.uid, state, resource, cu.pilot_id)
 
 
