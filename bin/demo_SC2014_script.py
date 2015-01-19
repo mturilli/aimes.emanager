@@ -599,9 +599,9 @@ def pilot_state_cb(pilot, state):
     """Called every time a ComputePilot changes its state.
     """
 
-    # This guard is to mitigate the erroneous management of the pilot state
-    # from the RP back-end.  In some conditions, the callback is called when
-    # the state of the pilot is not available when it should be.
+    # Mitigate the erroneous management of the pilot state from the RP
+    # back-end. In some conditions, the callback is called when the state of
+    # the pilot is not available even if it should be.
     if pilot:
 
         print "\033[34mPilot pilot-%-13s is %-13s on %s\033[0m" % \
@@ -609,14 +609,12 @@ def pilot_state_cb(pilot, state):
 
 
 def unit_state_change_cb(cu, state, pilots):
-    """unit_state_change_cb() is a callback function. It gets called
-    very time a ComputeUnit changes its state.
+    """Called every time a ComputeUnit changes its state.
     """
 
-    # This guard is necessary to mitigate the side-effects of the erroneous
-    # management of the CU state from the RP back-end. In some conditions, the
-    # callback is called when the state of the CU is not available when it
-    # should be.
+    # Mitigate the erroneous management of the CU state from the RP back-end.
+    # In some conditions, the callback is called when the state of the CU is
+    # not available even if it should be.
     if cu:
 
         resource = None
@@ -886,9 +884,7 @@ if __name__ == "__main__":
         report.info("Compute Units")
 
         #TODO: Get the name from the variable rp_scheduler
-        umgr = rp.UnitManager(
-            session=session,
-            scheduler=rp.SCHED_BACKFILLING)
+        umgr = rp.UnitManager(session=session, scheduler=rp.SCHED_BACKFILLING)
 
         # Register the unit manager callback
         umgr.register_callback(wait_queue_size_cb, rp.WAIT_QUEUE_SIZE)

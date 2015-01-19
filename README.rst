@@ -22,26 +22,32 @@ The AIMES execution manager requires either a Linux or OSX operating system.
 Furthermore, the following applications are required in order to run the the
 execution  manager:
 
-.. * `git <http://git-scm.com/>`_.
-.. * `virtualenv <https://pypi.python.org/pypi/virtualenv>`_.
-.. * `pip <https://pypi.python.org/pypi/pip>`_.
+* `git <http://git-scm.com/>`_.
+* `virtualenv <https://pypi.python.org/pypi/virtualenv>`_.
+* `pip <https://pypi.python.org/pypi/pip>`_.
 
-.. **Dependences**
+**Dependences**
 
-.. * radical.pilot: installed from pipi.
-.. * skeleton: installed from ...
-.. * bundle: installed from ...
+* radical.pilot: installed from pipi.
+* radical.utils: installed by radical.pilot from pipi.
+* saga-python: installed by radical.pilot from pipi.
+* aimes.emanager: isntalled from github.
+* aimes.skeleton: installed from github.
+* aimes.bundle: installed from github.
+* gnuplot >= 4.6
 
-.. **Installation**
+**Installation**
 
-.. To run the execution manager, prepare the environment for the workload manager:
+To run the execution manager, prepare the environment for the workload manager:
 
-.. #. ``$ virtualenv tmp/AIMES``
-.. #. ``$ . tmp/AIMES/bin/activate``
+#. ``$ virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014``
+#. ``$ . ~/Virtualenvs/AIMES-DEMO-SC2014/bin/activate``
 
-.. Install radical.pilot:
+Install radical.pilot:
 
-.. #. ``$ ...``
+#. ``$ pip install radical.pilot``
+
+The installation of radical.pilot will take care of installing also radical.utils and saga-python.
 
 .. Install the required modules:
 
