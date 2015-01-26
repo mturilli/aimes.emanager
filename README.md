@@ -162,6 +162,8 @@ demo_SC2014.sh
 
 The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
 
+Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late bind the tasks of the stilton on a dynamic number of pilots.
+
 The following directories will be written into the demo directory:
 
 * `run-21-<SID>`: directory containing all the files relative to the demo run. Multiple runs create individual directories.
