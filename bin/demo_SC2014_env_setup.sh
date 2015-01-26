@@ -24,6 +24,7 @@ then
     export XSEDE_PROJECT_ID_TRESTLES='unc102'
     export XSEDE_PROJECT_ID_GORDON='unc102'
     export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
+    export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
 fi
 
 if test "$username" = "mturilli"
@@ -34,13 +35,28 @@ then
     export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
     export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
     export XSEDE_PROJECT_ID_STAMPEDE='TG-MCB090174'
-    export XSEDE_PROJECT_ID_TRESTLES='unc102'
-    export XSEDE_PROJECT_ID_GORDON='unc102'
+    export XSEDE_PROJECT_ID_TRESTLES='unc100'
+    export XSEDE_PROJECT_ID_GORDON='unc101'
     export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
+    export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
 fi
 
+# if test "$username" = "<INSERT_YOUR_USERNAME>"
+# then
+#     #export EMANAGER_DEBUG
+#     export AIMES_USER_ID=<INSERT_YOUR_USERNAME>
+#     export DEMO_FOLDER=/home/<INSERT_YOUR_USERNAME>/AIMES_demo_SC2014
+#     export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
+#     export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
+#     export XSEDE_PROJECT_ID_STAMPEDE=<INSERT_YOUR_STAMPEDE_ALLOCATION>
+#     export XSEDE_PROJECT_ID_TRESTLES=<INSERT_YOUR_TRESTLES_ALLOCATION>
+#     export XSEDE_PROJECT_ID_GORDON=<INSERT_YOUR_GORDON_ALLOCATION>
+#     export XSEDE_PROJECT_ID_BLACKLIGHT=<INSERT_YOUR_BLACKLIGHT_ALLOCATION>
+#     export RECIPIENTS=<INSERT_RECIPIENT_EMAIL_ADDRESS>,<INSERT_RECIPIENT_EMAIL_ADDRESS>
+# fi
+
 # Set up Radical Pilot execution environment
-export RADICAL_PILOT_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/radicalpilot'
+export RADICAL_PILOT_DBURL='mongodb://54.221.194.147:24242/AIMES-demo'
 export RADICAL_PILOT_BENCHMARK=
 export SAGA_VERBOSE=debug
 export RADICAL_PILOT_VERBOSE=debug
@@ -52,8 +68,7 @@ export RADICAL_UTILS_LOG_TARGETS=$RADICAL_DEBUG_FILE
 
 # Set up eManager execution environment
 export ORIGIN='54.196.51.239'
-export BUNDLE_DBURL='mongodb://ec2-184-72-89-141.compute-1.amazonaws.com:27017/bundle_v0_1/'
+export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES-bundle/'
 
 # Setup report
-export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
 export RUN_TAG="AIMES demo SC2014"
