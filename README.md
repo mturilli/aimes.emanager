@@ -49,6 +49,7 @@ The demo script requires:
 * [blacklight](https://portal.xsede.org/psc-blacklight)
 * [Hopper](https://www.nersc.gov/systems/hopper-cray-xe6/)
 
+The demo can be run on a reduced set of resources but all the above resources are required to get a run consistent with the one demoed at SC2014.
 
 ## Installation
 
@@ -132,6 +133,8 @@ Edit the following file in your preferred editor:
 
 and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT_GORDON_USERNAME>`, `<INSERT_BLACKLIGHT_USERNAME>`, and `<INSERT_HOPPER_USERNAME>` with your username on the named resources.
 
+If the run needs to be run on a reduced set of resources, all the unneeded resources should be commented out in this file.
+
 ### Execution environment
 
 Create the directory from which to run the demo:
@@ -166,11 +169,13 @@ demo_SC2014.sh
 
 The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
 
+![Diagrammatic representation of a demo run](https://raw.github.com/mturilli/aimes.emanager/doc/54c64b2323769c240b19d396.png)
+
 Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late-bind the tasks of the given skeleton on a dynamic number of pilots.
 
 The following directories will be written into the demo directory:
 
-* `run-21-<SID>`: directory containing all the files relative to the demo run. Multiple runs create individual directories.
+* `run-21-<SID>`: directory containing all the files relative to the demo run, including diagrams, logs, and statistics. If the e-mail fails to be delivered, all the files are still available in this directory. Multiple runs create individual directories.
 * `Stage_1_Input`: directory with the input files for the tasks of the first stage of the skeleton.
 * `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.  
 * `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.
