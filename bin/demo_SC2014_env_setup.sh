@@ -56,7 +56,7 @@ fi
 # fi
 
 # Set up Radical Pilot execution environment
-export RADICAL_PILOT_DBURL='mongodb://54.221.194.147:24242/AIMES-demo'
+export RADICAL_PILOT_DBURL='mongodb://54.221.194.147:24242/AIMES_SC14_demo'
 export RADICAL_PILOT_BENCHMARK=
 export SAGA_VERBOSE=debug
 export RADICAL_PILOT_VERBOSE=debug
@@ -68,7 +68,7 @@ export RADICAL_UTILS_LOG_TARGETS=$RADICAL_DEBUG_FILE
 
 # Set up eManager execution environment
 export ORIGIN='54.196.51.239'
-export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES-bundle/'
+export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES_bundle/'
 
 # Setup report
 export RUN_TAG="AIMES demo SC2014"
