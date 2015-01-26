@@ -67,7 +67,9 @@ pip install Pyro4
 
 Install the execution manager:
 
-`pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#egg=aimes.emanager`
+```
+pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#egg=aimes.emanager
+```
 
 ## Configuration
 
@@ -81,7 +83,9 @@ Gnuplot is used to generate a diagrammatic representation of the demo run. This 
 
 Edit the following file in your preferred editor:
 
-`~/Virtualenvs/AIMES-DEMO-SC2014/bin/demo_SC2014_env_setup.sh`
+```
+~/Virtualenvs/AIMES-DEMO-SC2014/bin/demo_SC2014_env_setup.sh
+```
 
 uncomment the following block of text:
 
@@ -112,7 +116,9 @@ and replace:
 
 Edit the following file in your preferred editor:
 
-`~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf`
+```
+~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
+```
 
 and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT_GORDON_USERNAME>`, `<INSERT_BLACKLIGHT_USERNAME>`, and `<INSERT_HOPPER_USERNAME>` with your username on the named resources.
 
@@ -120,7 +126,9 @@ and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT
 
 The bundle module needs to be initialized before running the demo. Execute the following command:
 
-`aimes-bundle-manager -c ~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf -m mongodb -u mongodb://54.221.194.147:24242/AIMES-bundle/ -v`
+```
+aimes-bundle-manager -c ~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf -m mongodb -u mongodb://54.221.194.147:24242/AIMES-bundle/ -v
+```
 
 and wait 5 minutes to allow for all the resource information to be loaded into the bundle database.
 
