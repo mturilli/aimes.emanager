@@ -1,14 +1,16 @@
 # aimes.emanager
 
 EManager stays for Execution Manager and it is a module developed within the
-AIMES project. The EManager takes a Skeleton as an input and executes its tasks by means of the RADICAL pilot framework. Tasks are first described in terms of Compute Units and then are scheduled on one or more pilots. The number of pilots required to execute the given tasks is determined dynamically on the base of the duration and number of cores required by each task. Currently, EManager supports:
+AIMES project. The EManager takes a workflow description as an input and executes its tasks by means of a pilot framework on a dynamically chosen set of resources. The number of pilots required to execute the given tasks is determined dynamically on the base of the duration and number of cores required by each task and on the information acquired about target resources. 
 
-* RADICAL pilot as PilotJob framework; and
-* AIMES skeletons to execute synthetic workloads;
-* AIMES bundles as information system about resource properties.
+Currently, EManager supports:
+
+* [RADICAL-pilot](https://radical-cybertools.github.io/radical-pilot/index.html) as PilotJob framework;
+* [AIMES skeletons](http://dx.doi.org/10.1109/eScience.2014.9) as a synthetic workflow descriptor; and
+* [AIMES bundles](https://github.com/Francis-Liu/aimes.bundle) as information system about resource properties.
 
 EManager is still under development. At the moment, a proof of concept is
-available from this repository in the form of a demo script. The script has
+available from this repository in the form of a demo script. The script has been
 used at [Super Computing 2014](http://sc14.supercomputing.org/) to
 illustrate the progress and current state of the art of the AIMES project.
 
@@ -16,8 +18,9 @@ illustrate the progress and current state of the art of the AIMES project.
 
 The demo script requires:
 
-* either a Linux or OSX operating system. 
-* applications and python modules.
+* A Linux operating system. Apple OS X should work too but it has not been tested. 
+* OS-level applications
+* A selected number of python modules.
 * Accounts and allocations on [XSEDE](https://www.xsede.org/) and [NeRSC](https://www.nersc.gov/).
 
 ### Applications
@@ -36,6 +39,7 @@ The demo script requires:
 * [aimes.skeleton](https://github.com/applicationskeleton/Skeleton): installed from github
 * [aimes.bundle](https://github.com/Francis-Liu/aimes.bundle): installed from github
 * [pandas](http://pandas.pydata.org/): installed from pipi
+* [Pyro4](https://pythonhosted.org/Pyro4/): installed from pipi
 
 ### Allocations
 
@@ -55,7 +59,7 @@ virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014
 . ~/Virtualenvs/AIMES-DEMO-SC2014/bin/activate
 ```
 
-Install the required modules:
+Install the required python modules:
 
 ```
 pip install radical.pilot
@@ -74,7 +78,7 @@ pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#
 ## Configuration
 
 This demo has **not** been designed to be portable or to be shared among
-multiple users. As such, the demo requires an extensive and fairly rigid configuration of the running environment. 
+multiple users. As such, the demo requires an extensive and fairly rigid configuration of its running environment. 
 
 ### Supporting applications
 
@@ -83,7 +87,7 @@ The following programs need to be installed and made available within the OS:
 * gnuplot >= 4.6
 * mutt
 
-Gnuplot is used to generate a diagrammatic representation of the demo run. This diagram is mailed alongside run statistics and logs to a configurable list of recipients via mutt.
+Gnuplot is used to generate a diagrammatic representation of the demo run. This diagram is mailed alongside run statistics and logs to a configurable list of recipients via mutt. A mail agent/server is assumed to be configured and available on the host on which the demo is executed. Without one, mutt will not be able to send the e-mail.
 
 ### Configuration files
 
@@ -118,7 +122,7 @@ and replace:
 * `<INSERT_YOUR_TRESTLES_ALLOCATION>` with the allocation you want to use on trestles.
 * `<INSERT_YOUR_GORDON_ALLOCATION>` with the allocation you want to use on gordon.
 * `<INSERT_YOUR_BLACKLIGHT_ALLOCATION>` with the allocation you want to use on blacklight.
-* `<INSERT_RECIPIENT_EMAIL_ADDRESS>` with one or more comma-delimited e-mail address to which you want to send the report email once the demo as finished to run.
+* `<INSERT_RECIPIENT_EMAIL_ADDRESS>` with one or more comma-delimited e-mail address(es) to which you want to send the report email once a demo run has terminated.
 
 Edit the following file in your preferred editor:
 
@@ -153,7 +157,7 @@ and wait few minutes to allow for all the resource information to be loaded into
 
 ## Execution
 
-To execute the AIMES SC2014 demo issue the following commands:
+Execute the AIMES SC2014 demo as follows:
 
 ```
 cd ~/AIMES_demo_SC2014
@@ -162,14 +166,14 @@ demo_SC2014.sh
 
 The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
 
-Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late bind the tasks of the stilton on a dynamic number of pilots.
+Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late-bind the tasks of the given skeleton on a dynamic number of pilots.
 
 The following directories will be written into the demo directory:
 
 * `run-21-<SID>`: directory containing all the files relative to the demo run. Multiple runs create individual directories.
 * `Stage_1_Input`: directory with the input files for the tasks of the first stage of the skeleton.
-* `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the machine from which you are running the demo.  
-* `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the machine from which you are running the demo.
+* `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.  
+* `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.
 
 The skeleton executed by the demo can be modified by editing the file:
 
