@@ -74,12 +74,18 @@ pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#
 ## Configuration
 
 This demo has **not** been designed to be portable or to be shared among
-multiple users. As such, the demo requires an extensive and rigid configuration of the running environment. The following programs need to be installed and made available within the OS:
+multiple users. As such, the demo requires an extensive and fairly rigid configuration of the running environment. 
+
+### Supporting applications
+
+The following programs need to be installed and made available within the OS:
 
 * gnuplot >= 4.6
 * mutt
 
 Gnuplot is used to generate a diagrammatic representation of the demo run. This diagram is mailed alongside run statistics and logs to a configurable list of recipients via mutt.
+
+### Configuration files
 
 Edit the following file in your preferred editor:
 
@@ -122,6 +128,19 @@ Edit the following file in your preferred editor:
 
 and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT_GORDON_USERNAME>`, `<INSERT_BLACKLIGHT_USERNAME>`, and `<INSERT_HOPPER_USERNAME>` with your username on the named resources.
 
+### Execution environment
+
+Create the directory from which to run the demo:
+
+```
+mkdir ~/AIMES_demo_SC2014
+```
+
+### Authentication
+
+Bundles and radical.pilot require key-based ssh authentication and **do not handle** password requests for password-protected private keys. You have the choice to create a password-less private key or, more securely, use a ssh-agent to manage password requests for your keys. In order to run this demo you will need to setup key-based ssh authentication on: stampede, trestles, gordon, blacklight, and hopper.
+
+
 ## Initialization
 
 The bundle module needs to be initialized before running the demo. Execute the following command:
@@ -130,7 +149,30 @@ The bundle module needs to be initialized before running the demo. Execute the f
 aimes-bundle-manager -c ~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf -m mongodb -u mongodb://54.221.194.147:24242/AIMES-bundle/ -v
 ```
 
-and wait 5 minutes to allow for all the resource information to be loaded into the bundle database.
+and wait few minutes to allow for all the resource information to be loaded into the bundle database.
 
 ## Execution
+
+To execute the AIMES SC2014 demo issue the following commands:
+
+```
+cd ~/AIMES_demo_SC2014
+demo_SC2014.sh
+```
+
+The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
+
+The following directories will be written into the demo directory:
+
+* `run-21-<SID>`: directory containing all the files relative to the demo run. Multiple runs create individual directories.
+* `Stage_1_Input`: directory with the input files for the tasks of the first stage of the skeleton.
+* `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the machine from which you are running the demo.  
+* `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the machine from which you are running the demo.
+
+The skeleton executed by the demo can be modified by editing the file:
+
+```
+~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
+```
+
 

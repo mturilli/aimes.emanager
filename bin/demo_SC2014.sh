@@ -27,7 +27,7 @@ I_DATA=`grep 'Total input data' out.log | cut -d ':' -f 2 | sed 's/^ *\(.*\)/\1/
 O_DATA=`grep 'Total output data' out.log | cut -d ':' -f 2 | sed 's/^ *\(.*\)/\1/'`
 
 # Produce diagrams and statistics for the run.
-radicalpilot-stats -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
+radicalpilot-stats -d $RADICAL_PILOT_DBURL -m plot,stat -s $SESSION_UID > stats.out 2>/dev/null
 
 # Write the body of the report e-mail
 cat > description.log <<EOL
