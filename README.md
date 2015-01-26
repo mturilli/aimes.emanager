@@ -167,7 +167,7 @@ cd ~/AIMES_demo_SC2014
 demo_SC2014.sh
 ```
 
-The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
+The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file. Here an example of a diagram produced for a successful run of the demo:
 
 ![Diagrammatic representation of a demo run](https://raw.githubusercontent.com/mturilli/aimes.emanager/master/doc/54c64b2323769c240b19d396.png)
 
@@ -175,15 +175,15 @@ Note that the pilot on blacklight is supposed to fail. This illustrates the faul
 
 The following directories will be written into the demo directory:
 
-* `run-21-<SID>`: directory containing all the files relative to the demo run, including diagrams, logs, and statistics. If the e-mail fails to be delivered, all the files are still available in this directory. Multiple runs create individual directories.
+* `run-21-<SID>`: directory containing all the files relative to the demo run, including diagrams, logs, and statistics. If the e-mail fails to be delivered, all the files are still available within this directory. Multiple runs create individual directories.
 * `Stage_1_Input`: directory with the input files for the tasks of the first stage of the skeleton.
 * `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.  
 * `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.
 
-The skeleton executed by the demo can be modified by editing the file:
+The skeleton executed by the demo is limited to 21 tasks due to the time constraints imposed by a live execution. The skeleton can be modified by editing the file:
 
 ```
 ~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
 ```
-
+The current code should support runs up but not above 4096 tasks per stage.
 
