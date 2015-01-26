@@ -155,7 +155,6 @@ setup_args = {
     'package_data'       : {'' : ['etc/*.conf', 'VERSION', 'VERSION.git']},
     'data_files'         : [
         ("%s/etc/"% sys.prefix, ['etc/bundle_demo_SC2014.conf']),
-        ("%s/etc/"% sys.prefix, ['etc/emanager.conf']),
         ("%s/etc/"% sys.prefix, ['etc/skeleton_demo_SC2014.conf'])
     ],
     'cmdclass'           : {
