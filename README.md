@@ -50,20 +50,24 @@ The demo script requires:
 
 To run the demo script, prepare a dedicated python environment:
 
-* `virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014`
-* `. ~/Virtualenvs/AIMES-DEMO-SC2014/bin/activate`
+```
+virtualenv ~/Virtualenvs/AIMES-DEMO-SC2014
+. ~/Virtualenvs/AIMES-DEMO-SC2014/bin/activate
+```
 
 Install the required modules:
 
-* `pip install radical.pilot`
-* `pip install --upgrade git+https://github.com/applicationskeleton/Skeleton.git@$master#egg=Skeleton`
-* `pip install --upgrade git+https://github.com/Francis-Liu/aimes.bundle.git@$master#egg=aimes.bundle`
-* `pip install pandas`
-* `pip install Pyro4`
+```
+pip install radical.pilot
+pip install --upgrade git+https://github.com/applicationskeleton/Skeleton.git@$master#egg=Skeleton
+pip install --upgrade git+https://github.com/Francis-Liu/aimes.bundle.git@$master#egg=aimes.bundle
+pip install pandas
+pip install Pyro4
+```
 
 Install the execution manager:
 
-* `pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#egg=aimes.emanager`
+`pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#egg=aimes.emanager`
 
 ## Configuration
 
@@ -99,18 +103,18 @@ uncomment the following block of text:
 
 and replace:
 
-* <INSERT_YOUR_USERNAME> with the name of the account from which you will run the demo. The command `id -un` can be used to find out the name of the account to be used.
-* <INSERT_YOUR_STAMPEDE_ALLOCATION> with the allocation you want to use on stampede.
-* <INSERT_YOUR_TRESTLES_ALLOCATION> with the allocation you want to use on trestles.
-* <INSERT_YOUR_GORDON_ALLOCATION> with the allocation you want to use on gordon.
-* <INSERT_YOUR_BLACKLIGHT_ALLOCATION> with the allocation you want to use on blacklight.
-* <INSERT_RECIPIENT_EMAIL_ADDRESS> with one or more comma-delimited e-mail address to which you want to send the report email once the demo as finished to run.
+* `<INSERT_YOUR_USERNAME>` with the name of the account from which you will run the demo. The command `id -un` can be used to find out the name of the account to be used.
+* `<INSERT_YOUR_STAMPEDE_ALLOCATION>` with the allocation you want to use on stampede.
+* `<INSERT_YOUR_TRESTLES_ALLOCATION>` with the allocation you want to use on trestles.
+* `<INSERT_YOUR_GORDON_ALLOCATION>` with the allocation you want to use on gordon.
+* `<INSERT_YOUR_BLACKLIGHT_ALLOCATION>` with the allocation you want to use on blacklight.
+* `<INSERT_RECIPIENT_EMAIL_ADDRESS>` with one or more comma-delimited e-mail address to which you want to send the report email once the demo as finished to run.
 
 Edit the following file in your preferred editor:
 
 `~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf`
 
-and replace <INSERT_STAMPEDE_USERNAME>, <INSERT_TRESTLES_USERNAME>, <INSERT_GORDON_USERNAME>, <INSERT_BLACKLIGHT_USERNAME>, and <INSERT_HOPPER_USERNAME> with your username on the named resources.
+and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT_GORDON_USERNAME>`, `<INSERT_BLACKLIGHT_USERNAME>`, and `<INSERT_HOPPER_USERNAME>` with your username on the named resources.
 
 ## Initialization
 
