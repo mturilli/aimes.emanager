@@ -169,7 +169,7 @@ demo_SC2014.sh
 
 The script will output all the steps of the demo on the console and, once completed, will send an e-mail with the summary of the run and its diagrammatic representation to the e-mail address(es) indicated in the demo configuration file.
 
-![Diagrammatic representation of a demo run](https://raw.github.com/mturilli/aimes.emanager/doc/54c64b2323769c240b19d396.png)
+![Diagrammatic representation of a demo run](https://raw.githubusercontent.com/mturilli/aimes.emanager/master/doc/54c64b2323769c240b19d396.png)
 
 Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late-bind the tasks of the given skeleton on a dynamic number of pilots.
 
