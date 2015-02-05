@@ -287,6 +287,15 @@ else:
     if EMANAGER_DEBUG:
         print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
 
+USER_ID = os.environ.get('AIMES_USER_ID', None)
+if USER_ID is None:
+    print "ERROR: AIMES_USER_ID undefined. User name for all the resources."
+    sys.exit(1)
+else:
+    aimes_uid = USER_ID
+    if EMANAGER_DEBUG:
+        print "Target resources user name: %s" % AIMES_USER_ID
+
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
 bandwidth_out = dict()
@@ -659,14 +668,9 @@ if __name__ == "__main__":
 
     print "Execution session created        : UID %s" % session.uid
 
-    aimes_uid = os.environ.get('AIMES_USER_ID', None)
-
-    if aimes_uid == 'merzky':
-        print 'hi Andre, again!'
-    else:
-        context = rp.Context('ssh')
-        context.user_id = 'mturilli'
-        session.add_context(context)
+    context = rp.Context('ssh')
+    context.user_id = aimes_uid
+    session.add_context(context)
 
     print "Credentials for target resources : ***"
 

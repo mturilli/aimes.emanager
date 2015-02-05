@@ -1,7 +1,7 @@
 # aimes.emanager
 
 EManager stays for Execution Manager and it is a module developed within the
-AIMES project. The EManager takes a workflow description as an input and executes its tasks by means of a pilot framework on a dynamically chosen set of resources. The number of pilots required to execute the given tasks is determined dynamically on the base of the duration and number of cores required by each task and on the information acquired about target resources. 
+AIMES project. The EManager takes a workflow description as an input and executes its tasks by means of a pilot framework on a dynamically chosen set of resources. The number of pilots required to execute the given tasks is determined dynamically on the base of the duration and number of cores required by each task and on the information acquired about target resources.
 
 Currently, EManager supports:
 
@@ -18,7 +18,7 @@ illustrate the progress and current state of the art of the AIMES project.
 
 The demo script requires:
 
-* A Linux operating system. Apple OS X should work too but it has not been tested. 
+* A Linux operating system. Apple OS X should work too but it has not been tested.
 * OS-level applications
 * A selected number of python modules.
 * Accounts and allocations on [XSEDE](https://www.xsede.org/) and [NeRSC](https://www.nersc.gov/).
@@ -79,7 +79,7 @@ pip install --upgrade git+https://github.com/mturilli/aimes.emanager.git@master#
 ## Configuration
 
 This demo has **not** been designed to be portable or to be shared among
-multiple users. As such, the demo requires an extensive and fairly rigid configuration of its running environment. 
+multiple users. As such, the demo requires an extensive and fairly rigid configuration of its running environment.
 
 ### Supporting applications
 
@@ -171,13 +171,13 @@ The script will output all the steps of the demo on the console and, once comple
 
 ![Diagrammatic representation of a demo run](https://raw.githubusercontent.com/mturilli/aimes.emanager/master/doc/54c64b2323769c240b19d396.png)
 
-Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late-bind the tasks of the given skeleton on a dynamic number of pilots.
+**Note that the pilot on blacklight is supposed to fail. This illustrates the fault tolerant properties of the scheduler used to late-bind the tasks of the given skeleton on a dynamic number of pilots.**
 
 The following directories will be written into the demo directory:
 
 * `run-21-<SID>`: directory containing all the files relative to the demo run, including diagrams, logs, and statistics. If the e-mail fails to be delivered, all the files are still available within this directory. Multiple runs create individual directories.
 * `Stage_1_Input`: directory with the input files for the tasks of the first stage of the skeleton.
-* `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.  
+* `Stage_1_Output`: directory with the output files of the tasks of the first stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.
 * `Stage_2_Output`: directory with the output files of the tasks of the second stage of the skeleton. These files are transferred from the remote resource back to the host from which the demo has been run.
 
 The skeleton executed by the demo is limited to 21 tasks due to the time constraints imposed by a live execution. The skeleton can be modified by editing the file:
