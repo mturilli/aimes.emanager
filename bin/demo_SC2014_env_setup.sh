@@ -45,6 +45,7 @@ fi
 # then
 #     #export EMANAGER_DEBUG
 #     export AIMES_USER_ID=<INSERT_YOUR_USERNAME>
+#     export AIMES_USER_KEY=<INSERT_PATH_TO_YOUR_SSH_PRIVATE_KEY>
 #     export DEMO_FOLDER=/home/<INSERT_YOUR_USERNAME>/AIMES_demo_SC2014
 #     export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
 #     export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf

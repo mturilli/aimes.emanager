@@ -105,6 +105,7 @@ uncomment the following block of text:
 # then
 #     #export EMANAGER_DEBUG
 #     export AIMES_USER_ID=<INSERT_YOUR_USERNAME>
+#     export AIMES_USER_KEY=<INSERT_PATH_TO_YOUR_SSH_PRIVATE_KEY>
 #     export DEMO_FOLDER=/home/<INSERT_YOUR_USERNAME>/AIMES_demo_SC2014
 #     export BUNDLE_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf
 #     export SKELETON_CONF=~/Virtualenvs/AIMES-DEMO-SC2014/etc/skeleton_demo_SC2014.conf
@@ -119,6 +120,7 @@ uncomment the following block of text:
 and replace:
 
 * `<INSERT_YOUR_USERNAME>` with the name of the account from which you will run the demo. The command `id -un` can be used to find out the name of the account to be used.
+* `<INSERT_PATH_TO_YOUR_SSH_PRIVATE_KEY>` with the path of the ssh private key that will be used to authenticate on _all_ the target resources. This parameter needs to be specified only when more than one private key is present in `~/.ssh`.
 * `<INSERT_YOUR_STAMPEDE_ALLOCATION>` with the allocation you want to use on stampede.
 * `<INSERT_YOUR_TRESTLES_ALLOCATION>` with the allocation you want to use on trestles.
 * `<INSERT_YOUR_GORDON_ALLOCATION>` with the allocation you want to use on gordon.

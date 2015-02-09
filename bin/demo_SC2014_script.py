@@ -34,19 +34,20 @@ import aimes.skeleton
 # -----------------------------------------------------------------------------
 # Configuration
 # -----------------------------------------------------------------------------
-EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG")
+EMANAGER_DEBUG = os.getenv("EMANAGER_DEBUG", None)
 
 DEMO_TITLE = os.getenv("RUN_TAG")
 
-DEMO_FOLDER = os.getenv("DEMO_FOLDER")+'/'
+DEMO_FOLDER = os.getenv("DEMO_FOLDER", None)
 if DEMO_FOLDER is None:
     print "ERROR: DEMO_FOLDER is not defined."
     sys.exit(1)
 else:
+    DEMO_FOLDER = DEMO_FOLDER+'/'
     if EMANAGER_DEBUG:
         print "DEBUG - Demo root directory: %s" % DEMO_FOLDER
 
-DBURL = os.getenv("RADICAL_PILOT_DBURL")
+DBURL = os.getenv("RADICAL_PILOT_DBURL", None)
 if DBURL is None:
     print "ERROR: RADICAL_PILOT_DBURL (MongoDB server URL) is not defined."
     sys.exit(1)
@@ -55,7 +56,7 @@ else:
         print "DEBUG - Session database: %s" % DBURL
 
 # The Skeleton configuration file.
-SKELETON_CONF = os.getenv("SKELETON_CONF")
+SKELETON_CONF = os.getenv("SKELETON_CONF", None)
 if SKELETON_CONF is None:
     print "ERROR: SKELETON_CONF (i.e. skeleton description file) not defined."
     sys.exit(1)
@@ -64,7 +65,7 @@ else:
         print "DEBUG - Skeleton description file: %s" % SKELETON_CONF
 
 # The bundle configuration file.
-BUNDLE_CONF = os.getenv("BUNDLE_CONF")
+BUNDLE_CONF = os.getenv("BUNDLE_CONF", None)
 if BUNDLE_CONF is None:
     print "ERROR: BUNDLE_CONF (i.e. bundle configuration file) not defined."
     sys.exit(1)
@@ -74,7 +75,7 @@ else:
 
 # The IP from which the submission originates. From example, the IP of the
 # virtual machine from which an AIMES demo is executed.
-ORIGIN = os.getenv("ORIGIN")
+ORIGIN = os.getenv("ORIGIN", None)
 if ORIGIN is None:
     print "ERROR: ORIGIN (i.e. your current IP address) not defined."
     sys.exit(1)
@@ -82,13 +83,25 @@ else:
     if EMANAGER_DEBUG:
         print "DEBUG - IP address: %s" % ORIGIN
 
-BUNDLE_DBURL = os.getenv("BUNDLE_DBURL")
+BUNDLE_DBURL = os.getenv("BUNDLE_DBURL", None)
 if BUNDLE_DBURL is None:
     print "ERROR: BUNDLE_DBURL not defined."
     sys.exit(1)
 else:
     if EMANAGER_DEBUG:
         print "DEBUG - IP address: %s" % BUNDLE_DBURL
+
+USER_ID = os.environ.get('AIMES_USER_ID', None)
+if USER_ID is None:
+    print "ERROR: AIMES_USER_ID undefined. User name for all the resources."
+    sys.exit(1)
+else:
+    if EMANAGER_DEBUG:
+        print "Target resources user name: %s" % USER_ID
+
+USER_KEY = os.environ.get('AIMES_USER_KEY', None)
+if EMANAGER_DEBUG:
+    print "Target resources user key: %s" % USER_KEY
 
 
 # -----------------------------------------------------------------------------
@@ -286,15 +299,6 @@ if 'blacklight.psc.xsede.org' in bundle.resources and \
 else:
     if EMANAGER_DEBUG:
         print "XSEDE project ID: %s" % XSEDE_PROJECT_ID_BLACKLIGHT
-
-USER_ID = os.environ.get('AIMES_USER_ID', None)
-if USER_ID is None:
-    print "ERROR: AIMES_USER_ID undefined. User name for all the resources."
-    sys.exit(1)
-else:
-    aimes_uid = USER_ID
-    if EMANAGER_DEBUG:
-        print "Target resources user name: %s" % AIMES_USER_ID
 
 # Collect information about the resources to plan the execution strategy.
 bandwidth_in = dict()
@@ -669,7 +673,11 @@ if __name__ == "__main__":
     print "Execution session created        : UID %s" % session.uid
 
     context = rp.Context('ssh')
-    context.user_id = aimes_uid
+    context.user_id = USER_ID
+
+    if USER_KEY:
+        context.user_key = USER_KEY
+
     session.add_context(context)
 
     print "Credentials for target resources : ***"
