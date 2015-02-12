@@ -25,6 +25,7 @@ then
     export XSEDE_PROJECT_ID_GORDON='unc102'
     export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
     export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
+    export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES_bundle_merzky/'
 fi
 
 if test "$username" = "mturilli"
@@ -39,6 +40,8 @@ then
     export XSEDE_PROJECT_ID_GORDON='unc101'
     export XSEDE_PROJECT_ID_BLACKLIGHT='unc102'
     export RECIPIENTS=matteo.turilli@gmail.com,andre@merzky.net,shantenu.jha@rutgers.edu
+    export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES_bundle_mturilli/'
+
 fi
 
 # if test "$username" = "<INSERT_YOUR_USERNAME>"
@@ -54,6 +57,7 @@ fi
 #     export XSEDE_PROJECT_ID_GORDON=<INSERT_YOUR_GORDON_ALLOCATION>
 #     export XSEDE_PROJECT_ID_BLACKLIGHT=<INSERT_YOUR_BLACKLIGHT_ALLOCATION>
 #     export RECIPIENTS=<INSERT_RECIPIENT_EMAIL_ADDRESS>,<INSERT_RECIPIENT_EMAIL_ADDRESS>
+#     export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES_bundle_<INSERT_YOUR_USERNAME>/'
 # fi
 
 # Set up Radical Pilot execution environment
@@ -69,7 +73,6 @@ export RADICAL_UTILS_LOG_TARGETS=$RADICAL_DEBUG_FILE
 
 # Set up eManager execution environment
 export ORIGIN='54.196.51.239'
-export BUNDLE_DBURL='mongodb://54.221.194.147:24242/AIMES_bundle/'
 
 # Setup report
 export RUN_TAG="AIMES demo SC2014"

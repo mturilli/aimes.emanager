@@ -149,16 +149,34 @@ mkdir ~/AIMES_demo_SC2014
 
 Bundles and radical.pilot require key-based ssh authentication and **do not handle** password requests for password-protected private keys. You have the choice to create a password-less private key or, more securely, use a ssh-agent to manage password requests for your keys. In order to run this demo you will need to setup key-based ssh authentication on: stampede, trestles, gordon, blacklight, and hopper.
 
+Please note that 
+
 
 ## Initialization
 
 The bundle module needs to be initialized before running the demo. Execute the following command:
 
 ```
-aimes-bundle-manager -c ~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf -m mongodb -u mongodb://54.221.194.147:24242/AIMES-bundle/ -v
+aimes-bundle-manager -c ~/Virtualenvs/AIMES-DEMO-SC2014/etc/bundle_demo_SC2014.conf -m mongodb -u mongodb://54.221.194.147:24242/AIMES_bundle_<USERNAME>/ -v
 ```
 
-and wait few minutes to allow for all the resource information to be loaded into the bundle database.
+The string `<USERNAME>` will have to be replaced by the same username that has ben set in the file `~/Virtualenvs/AIMES-DEMO-SC2014/bin/demo_SC2014_env_setup.sh` as per instructions in the Section `Configuration files` above. 
+
+`aimed-bundle-manager` command will take few minutes to populate the bundle database with all the resource information. This demo should not be run before the database has been fully populated.
+
+The bundle database will bave to be purged and reinitialized in case of repeated runs of the demo with different target resources. The following command can be used to purge the bundle database:
+
+```
+radical-utils-mongodb.py -m remove -d mongodb://54.221.194.147:24242/AIMES_bundle_<USERNAME>/
+```
+
+The content of the bundle database can be inspected with one of the following commands, depending on the output formatting required:
+
+```
+radical-utils-mongodb.py -m tree -d mongodb://54.221.194.147:24242/AIMES_bundle_<USERNAME>/
+radical-utils-mongodb.py -m dump -d mongodb://54.221.194.147:24242/AIMES_bundle_<USERNAME>/
+```
+
 
 ## Execution
 
