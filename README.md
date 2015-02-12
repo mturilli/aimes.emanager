@@ -145,8 +145,17 @@ When different IDs are used on target resources further configuration is needed:
 * Set an ID for each target resource in your `~/.ssh/config`. For example:
   
   ```
-Andre: please insert here your ~/.ssh/config example
-  ```
+host stampede stampede.tacc.xsede.org stampede.tacc.utexas.edu
+  User                   = tg803521
+  Hostname               = login1.stampede.tacc.utexas.edu
+
+host trestles trestles.sdsc.xsede.org
+  User                   = amerzky
+  Hostname               = trestles-login.sdsc.edu
+
+host login.archer.ac.uk
+  User                   = merzky
+```
 
 ### Execution environment
 
