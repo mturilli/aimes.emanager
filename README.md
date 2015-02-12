@@ -137,6 +137,17 @@ and replace `<INSERT_STAMPEDE_USERNAME>`, `<INSERT_TRESTLES_USERNAME>`, `<INSERT
 
 If the run needs to be run on a reduced set of resources, all the unneeded resources should be commented out in this file.
 
+***NOTE***
+
+When different IDs are used on target resources further configuration is needed:
+
+* Unset/comment out the environment variable `AIMES_USER_ID` in `demo_SC2014_env_setup.sh`.
+* Set an ID for each target resource in your `~/.ssh/config`. For example:
+  
+  ```
+Andre: please insert here your ~/.ssh/config example
+  ```
+
 ### Execution environment
 
 Create the directory from which to run the demo:

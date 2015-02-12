@@ -92,12 +92,8 @@ else:
         print "DEBUG - IP address: %s" % BUNDLE_DBURL
 
 USER_ID = os.environ.get('AIMES_USER_ID', None)
-if USER_ID is None:
-    print "ERROR: AIMES_USER_ID undefined. User name for all the resources."
-    sys.exit(1)
-else:
-    if EMANAGER_DEBUG:
-        print "Target resources user name: %s" % USER_ID
+if EMANAGER_DEBUG:
+    print "Target resources user name: %s" % USER_ID
 
 USER_KEY = os.environ.get('AIMES_USER_KEY', None)
 if EMANAGER_DEBUG:
@@ -673,7 +669,9 @@ if __name__ == "__main__":
     print "Execution session created        : UID %s" % session.uid
 
     context = rp.Context('ssh')
-    context.user_id = USER_ID
+
+    if USER_ID:
+        context.user_id = USER_ID
 
     if USER_KEY:
         context.user_key = USER_KEY
