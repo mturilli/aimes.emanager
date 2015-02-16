@@ -64,8 +64,8 @@ Install the required python modules:
 
 ```
 pip install radical.pilot
-pip install --upgrade git+https://github.com/applicationskeleton/Skeleton.git@$master#egg=Skeleton
-pip install --upgrade git+https://github.com/Francis-Liu/aimes.bundle.git@$master#egg=aimes.bundle
+pip install --upgrade git+https://github.com/applicationskeleton/Skeleton.git@master#egg=Skeleton
+pip install --upgrade git+https://github.com/Francis-Liu/aimes.bundle.git@master#egg=aimes.bundle
 pip install pandas
 pip install Pyro4
 ```
